@@ -39,13 +39,7 @@ jobs:
       run: dir
       
     - name: Move to GLFW directory
-      run: cd slvn-tech\dependencies\glfw
-      
-    - name: Dir
-      run: dir
-      
-    - name: Configure GLFW build
-      run: cmake .
+      run: cmake slvn-tech\dependencies\glfw\
     
     - name: Compile GLFW
       run: msbuild /m .\
