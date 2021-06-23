@@ -22,6 +22,11 @@ jobs:
     - name: Add MSBuild to PATH
       uses: microsoft/setup-msbuild@v1.0.2
       
+    - name: Setup Vulkan SDK
+      # You may pin to the exact commit or the version.
+      # uses: humbletim/setup-vulkan-sdk@bf47d4f99d2ee401cbc5e91cadfdcea0f36fca5f
+      uses: humbletim/setup-vulkan-sdk@v1.0.1
+
     - name: Setup premake
     # You may pin to the exact commit or the version.
     # uses: abel0b/setup-premake@8c96e76d62db4c5cbe7c16d7e5b80183534374c7
@@ -29,7 +34,16 @@ jobs:
       
     - name: Run premake
       run: premake5.exe vs2019
-
+      
+    - name: Dir
+      run: dir
+      
+    - name: Move to GLFW directory
+      run: cmake slvn-tech\dependencies\glfw\
+    
+    - name: Compile GLFW
+      run: msbuild /m .\
+    
     - name: Build
       working-directory: ${{env.GITHUB_WORKSPACE}}
       # Add additional options to the MSBuild command line here (like platform or verbosity level).
