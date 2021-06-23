@@ -1,6 +1,9 @@
 # slvn-tech
 slvn-tech is a game engine utilizing Vulkan
 
+# Status
+Current main status: [![MSBuild Actions Status](https://github.com/Planksu/slvn-tech/workflows/MSBuild/badge.svg)](https://github.com/Planksu/slvn-tech/actions)
+
 # Configuring / building
 slvn-tech uses Premake5 as a build configuration tool. You need to download it from:
 [Premake's website](https://premake.github.io/ "premake.github.io")
