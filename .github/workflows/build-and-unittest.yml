@@ -35,8 +35,17 @@ jobs:
     - name: Run premake
       run: premake5.exe vs2019
       
+    - name: Dir
+      run: dir
+      
     - name: Move to GLFW directory
-      run: cd ${{env.VULKAN_SDK}}\..\dependencies\glfw
+      run: cd ${{env.VULKAN_SDK}}\..\
+      
+    - name: Dir
+      run: dir
+      
+    - name: Move to GLFW
+      run: cd dependencies\glfw
       
     - name: Configure GLFW build
       run: cmake .
