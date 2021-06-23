@@ -44,7 +44,10 @@ project "slvn-tech"
 	targetname "slvn-tech"
 	kind "ConsoleApp"
 	language "C++"
-	files { "./slvn-tech/include/*.h", "./slvn-tech/src/*.cc" }
+	files { "./slvn-tech/include/*.h",
+			"./slvn-tech/include/abstract/*.h",
+			"./slvn-tech/src/*.cc",
+			"./slvn-tech/src/abstract/*.cc"}
 
 	defines {}
 	links {}
@@ -55,7 +58,7 @@ project "slvn-tech"
 		libdirs {}
 		
 	configuration "not macosx"
-		includedirs {"./slvn-tech/include"}
+		includedirs {"./slvn-tech/include", "./slvn-tech/include/*"}
 	configuration "macosx"
 
 	configuration "Debug"
