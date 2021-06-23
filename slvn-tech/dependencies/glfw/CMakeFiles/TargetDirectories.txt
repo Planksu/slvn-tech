@@ -1,6 +1,0 @@
-C:/Users/antto/Documents/slvn-tech/slvn-tech/depedencies/glfw/CMakeFiles/uninstall.dir
-C:/Users/antto/Documents/slvn-tech/slvn-tech/depedencies/glfw/CMakeFiles/INSTALL.dir
-C:/Users/antto/Documents/slvn-tech/slvn-tech/depedencies/glfw/CMakeFiles/ALL_BUILD.dir
-C:/Users/antto/Documents/slvn-tech/slvn-tech/depedencies/glfw/CMakeFiles/ZERO_CHECK.dir
-C:/Users/antto/Documents/slvn-tech/slvn-tech/depedencies/glfw/src/CMakeFiles/glfw.dir
-C:/Users/antto/Documents/slvn-tech/slvn-tech/depedencies/glfw/src/CMakeFiles/INSTALL.dir
