@@ -39,13 +39,10 @@ jobs:
       run: dir
       
     - name: Move to GLFW directory
-      run: cd ${{env.VULKAN_SDK}}\..\
+      run: cd slvn-tech\dependencies\glfw
       
     - name: Dir
       run: dir
-      
-    - name: Move to GLFW
-      run: cd dependencies\glfw
       
     - name: Configure GLFW build
       run: cmake .
