@@ -42,7 +42,7 @@ jobs:
       run: cmake slvn-tech\dependencies\glfw\
     
     - name: Compile GLFW
-      run: msbuild /m .\
+      run: msbuild /m .\GLFW.sln
     
     - name: Build
       working-directory: ${{env.GITHUB_WORKSPACE}}
