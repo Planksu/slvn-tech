@@ -50,7 +50,7 @@ project "slvn-tech"
 			"./slvn-tech/src/abstract/*.cc"}
 
 	defines {}
-	links {}
+	links { "vulkan-1.lib", "glfw3.lib" }
 	configuration "x64"
 		libdirs {}
 		
@@ -58,7 +58,12 @@ project "slvn-tech"
 		libdirs {}
 		
 	configuration "not macosx"
-		includedirs {"./slvn-tech/include", "./slvn-tech/include/*"}
+		includedirs {	"./slvn-tech/include",
+						"./slvn-tech/include/*",
+						"$(VULKAN_SDK)/include",
+						"./slvn-tech/dependencies/glfw/include",
+						"./slvn-tech/dependencies/glm/glm"}
+		libdirs { "$(VULKAN_SDK)/Lib", "./slvn-tech/dependencies/glfw/src/Debug }
 	configuration "macosx"
 
 	configuration "Debug"

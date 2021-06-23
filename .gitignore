@@ -351,3 +351,12 @@ MigrationBackup/
 
 premake5.exe
 project-files/*
+
+slvn-tech/dependencies/glfw/*.vcxproj
+slvn-tech/dependencies/glfw/*.vcxproj.filters
+slvn-tech/dependencies/glm/*.yml
+slvn-tech/dependencies/glm/*.gitignore
+slvn-tech/dependencies/glfw/*.sln
+
+
+
