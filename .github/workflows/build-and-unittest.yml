@@ -36,7 +36,7 @@ jobs:
       run: premake5.exe vs2019
       
     - name: Move to GLFW directory
-      run: cd ${{env.GITHUB_WORKSPACE}}\slvn-tech\slvn-tech\dependencies\glfw
+      run: cd ${{env.VULKAN_SDK}}\..\dependencies\glfw
       
     - name: Configure GLFW build
       run: cmake .
