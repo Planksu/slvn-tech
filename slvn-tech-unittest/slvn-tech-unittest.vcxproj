@@ -128,15 +128,15 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(VCInstallDir)UnitTest\include;..\slvn-tech\include;..\slvn-tech\include\abstract</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(VCInstallDir)UnitTest\include;..\slvn-tech\include;..\slvn-tech\include\abstract;..\VULKAN_SDK\include;$(VULKAN_SDK)\include;..\slvn-tech\dependencies\glm\glm;..\slvn-tech\dependencies\glfw\include</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <UseFullPaths>true</UseFullPaths>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
-      <AdditionalLibraryDirectories>$(VCInstallDir)UnitTest\lib;..\builds\obj\Debug\x64</AdditionalLibraryDirectories>
-      <AdditionalDependencies>slvn_render_engine.obj;slvn_abstract_engine.obj;slvn_debug.obj</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(VCInstallDir)UnitTest\lib;..\builds\obj\Debug\x64;$(VULKAN_SDK)\lib;..\VULKAN_SDK\lib;..\src\Debug</AdditionalLibraryDirectories>
+      <AdditionalDependencies>slvn_render_engine.obj;slvn_abstract_engine.obj;slvn_debug.obj;vulkan-1.lib;glfw3.lib</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
