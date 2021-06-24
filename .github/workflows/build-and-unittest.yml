@@ -36,7 +36,7 @@ jobs:
       run: premake5.exe vs2019
       
     - name: Dir
-      run: dir && cd VULKAN_SDK && dir && cd include && dir
+      run: dir && cd VULKAN_SDK && dir && cd include && dir && cd vulkan && dir
       
     - name: Move to GLFW directory
       run: cmake slvn-tech\dependencies\glfw\
