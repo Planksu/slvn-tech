@@ -75,4 +75,41 @@ project "slvn-tech"
 	configuration "Release"
 		defines {"NDEBUG"}
 		optimize "On"
+		
+project "slvn-tech-unittest"
+	targetname "slvn-tech-unittest"
+	kind "SharedLib"
+	language "C++"
+	files { "./slvn-tech/src/test/*.cpp",
+			"./slvn-tech/include/test/*.h"}
+
+	defines {}
+	links { "vulkan-1.lib", "glfw3.lib", "slvn_render_engine.obj", "slvn_abstract_engine.obj", "slvn_debug.obj"}
+	configuration "x64"
+		libdirs {}
+		
+	configuration "x86"
+		libdirs {}
+		
+	configuration "not macosx"
+		includedirs {	"./slvn-tech/include",
+						"./slvn-tech/include/*",
+						"$(VULKAN_SDK)/include",
+						"./slvn-tech/VULKAN_SDK/include",
+						"./slvn-tech/dependencies/glfw/include",
+						"./slvn-tech/dependencies/glm/glm",
+						"./VULKAN_SDK/include",
+						"$(VCInstallDir)UnitTest/include"}
+		libdirs { "$(VCInstallDir)UnitTest/lib", "$(VULKAN_SDK)/lib", "./slvn-tech/VULKAN_SDK/lib", "./VULKAN_SDK/lib", "./builds/obj/Debug/x64", "./src/Debug" }
+	configuration "macosx"
+
+	configuration "Debug"
+		defines {"DEBUG"}
+		symbols "On"	
+
+	configuration "Release"
+		defines {"NDEBUG"}
+		optimize "On"
+
+
 
