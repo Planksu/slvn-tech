@@ -61,9 +61,10 @@ project "slvn-tech"
 		includedirs {	"./slvn-tech/include",
 						"./slvn-tech/include/*",
 						"$(VULKAN_SDK)/include",
+						"./slvn-tech/VULKAN_SDK/include",
 						"./slvn-tech/dependencies/glfw/include",
 						"./slvn-tech/dependencies/glm/glm"}
-		libdirs { "$(VULKAN_SDK)/Lib", "./slvn-tech/src/Debug" }
+		libdirs { "$(VULKAN_SDK)/Lib", "./slvn-tech/VULKAN_SDK/Lib", "./slvn-tech/src/Debug" }
 	configuration "macosx"
 
 	configuration "Debug"
