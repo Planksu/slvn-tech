@@ -54,14 +54,13 @@ jobs:
       run: msbuild /m /p:Platform=x64 /p:Configuration=${{env.BUILD_CONFIGURATION}} ${{env.SOLUTION_FILE_PATH}}/slvn-tech-unittest.vcxproj  
     
     - name: Dir
-      run: dir && cd ${{env.GITHUB_WORKSPACE}} && dir && cd ${{env.GITHUB_WORKSPACE}}\builds\Debug\x64 && dir
+      run: dir && cd ${{ github.workspace }} && dir && cd ${{ github.workspace }}\builds\Debug\x64 && dir
     
     - name: Append unittest to PATH
-      run: echo ${{env.GITHUB_WORKSPACE}}\builds\Debug\x64 >> %GITHUB_PATH%
+      run: echo ${{ github.workspace }}\builds\Debug\x64 >> %GITHUB_PATH%
       
     - name: Echo PATH
       run: echo ${{env.GITHUB_PATH}}
       
     - name: Run unittest
-      working-directory: ${{env.GITHUB_WORKSPACE}}
-      run: ${{env.GITHUB_WORKSPACE}}\builds\Debug\x64\slvn-tech-unittest.exe
+      run: ${{ github.workspace }}\builds\Debug\x64\slvn-tech-unittest.exe
