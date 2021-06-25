@@ -100,7 +100,13 @@ project "slvn-tech-unittest"
 						"./slvn-tech/dependencies/glm/glm",
 						"./VULKAN_SDK/include",
 						"$(VCInstallDir)UnitTest/include"}
-		libdirs { "$(VCInstallDir)UnitTest/lib", "$(VULKAN_SDK)/lib", "./slvn-tech/VULKAN_SDK/lib", "./VULKAN_SDK/lib", "./builds/obj/Debug/x64", "./src/Debug" }
+						
+		libdirs { 	"$(VCInstallDir)UnitTest/lib",
+					"$(VULKAN_SDK)/lib",
+					"./slvn-tech/VULKAN_SDK/lib", 
+					"./VULKAN_SDK/lib", 
+					"./builds/obj/Debug/x64/x64/Debug/slvn-tech", 
+					"./src/Debug" }
 	configuration "macosx"
 
 	configuration "Debug"
