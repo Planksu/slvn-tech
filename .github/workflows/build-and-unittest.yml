@@ -37,6 +37,9 @@ jobs:
       
     - name: Configure/Compile GLFW
       run: cmake slvn-tech\dependencies\glfw\ && msbuild /m .\GLFW.sln
+      
+    - name: Configure/Compile gtest
+      run: cd googletest && cmake . -Dgtest_force_shared_crt=ON && msbuild /m googletest-distribution.sln
     
     - name: Build
       working-directory: ${{env.GITHUB_WORKSPACE}}
@@ -49,11 +52,6 @@ jobs:
       # Add additional options to the MSBuild command line here (like platform or verbosity level).
       # See https://docs.microsoft.com/visualstudio/msbuild/msbuild-command-line-reference
       run: msbuild /m /p:Platform=x64 /p:Configuration=${{env.BUILD_CONFIGURATION}} ${{env.SOLUTION_FILE_PATH}}/slvn-tech-unittest.vcxproj  
-    
-    - name: Setup VSTest.console.exe
-      # You may pin to the exact commit or the version.
-      # uses: darenm/Setup-VSTest@fbb574e849d6225ce9702f86e64eb6cdc4b4e561
-      uses: darenm/Setup-VSTest@v1.1.1
       
     - name: Run unittest
-      run: vstest.console.exe ${{env.UNITTEST_DLL_LOCATION}}
+      run: ${{UNITTEST_DLL_LOCATION}}
