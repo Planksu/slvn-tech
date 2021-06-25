@@ -54,4 +54,4 @@ jobs:
       run: msbuild /m /p:Platform=x64 /p:Configuration=${{env.BUILD_CONFIGURATION}} ${{env.SOLUTION_FILE_PATH}}/slvn-tech-unittest.vcxproj  
       
     - name: Run unittest
-      run: ${{env.UNITTEST_DLL_LOCATION}}
+      run: ./${{env.UNITTEST_DLL_LOCATION}}
