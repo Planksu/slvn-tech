@@ -52,18 +52,3 @@ jobs:
       # Add additional options to the MSBuild command line here (like platform or verbosity level).
       # See https://docs.microsoft.com/visualstudio/msbuild/msbuild-command-line-reference
       run: msbuild /m /p:Platform=x64 /p:Configuration=${{env.BUILD_CONFIGURATION}} ${{env.SOLUTION_FILE_PATH}}/slvn-tech-unittest.vcxproj  
-    
-    - name: Dir
-      run: dir && cd ${{ github.workspace }} && dir && cd ${{ github.workspace }}\builds\Debug\x64 && dir
-      
-    - name: Run tests
-      run: ${{ github.workspace}}\run_tests.bat
-      
-    - name: Upload a Build Artifact
-      uses: actions/upload-artifact@v2.2.4
-      with:
-        # Artifact name
-        name: output.log# optional, default is artifact
-        # A file, directory or wildcard pattern that describes what to upload
-        path: ${{ github.workspace }}\builds\Debug\x64\output.log
-        # The desired behavior if no files are found using the provided path.
