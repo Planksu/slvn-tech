@@ -24,41 +24,33 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#include <slvn_render_engine.h>
-#include <slvn_debug.h>
+#include <vulkan/vulkan.h>
 
-namespace slvn_tech
+#include <slvn_abstract_instance.h>
+#include <core.h>
+
+#ifndef SLVNINSTANCE_H
+#define SLVNINSTANCE_H
+
+
+/// <summary>
+/// SlvnInstance is a wrapper class for VkInstance from Vulkan. It's purpose is to split
+/// code from render engine to wrapper classes, easing continued development.
+/// </summary>
+class SlvnInstance : public SlvnAbstractInstance
 {
+public:
+    SlvnInstance();
+    ~SlvnInstance();
 
-SlvnRenderEngine::SlvnRenderEngine(int identif)
-{
-    mIdentifier = identif;
-    mInstance = SlvnInstance();
-    mInstance.Initialize();
-}
+    SlvnResult Initialize() override;
 
-SlvnRenderEngine::~SlvnRenderEngine()
-{
+private:
+    VkInstance mInstance;
 
-}
-
-SlvnResult SlvnRenderEngine::Initialize()
-{
-    uint32_t extensionCount = 0;
-    VkResult result = vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, nullptr);
-    if (result != VK_SUCCESS)
-    {
-        SLVN_PRINT("Could NOT query extensions!");
-    }
-
-    SLVN_PRINT("extensionCount is: " << extensionCount);
-
-    if (extensionCount > 0)
-    {
-        return SlvnResult::cOk;
-    }
-
-    return SlvnResult::cUnexpectedError;
-}
-
+private:
+    SlvnResult FillInstanceInfo(VkInstanceCreateInfo& instanceInfo, VkApplicationInfo& appInfo);
+    SlvnResult FillApplicationInfo(VkApplicationInfo& appInfo);
 };
+
+#endif // SLVNINSTANCE_H

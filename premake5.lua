@@ -65,7 +65,12 @@ project "slvn-tech"
 						"./slvn-tech/dependencies/glfw/include",
 						"./slvn-tech/dependencies/glm/glm",
 						"./VULKAN_SDK/include",}
-		libdirs { "$(VULKAN_SDK)/lib", "./slvn-tech/VULKAN_SDK/lib", "./VULKAN_SDK/lib", "./src/Debug" }
+		libdirs { 	"$(VULKAN_SDK)/lib",
+					"./slvn-tech/VULKAN_SDK/lib",
+					"./VULKAN_SDK/lib",
+					"./src/Debug",
+					"../slvn-tech-local-dependencies/glfw/Debug"}
+		cppdialect "C++17"
 	configuration "macosx"
 
 	configuration "Debug"
@@ -84,7 +89,16 @@ project "slvn-tech-unittest"
 			"./slvn-tech/include/test/*.h"}
 
 	defines {}
-	links { "vulkan-1.lib", "glfw3.lib", "slvn_render_engine.obj", "slvn_abstract_engine.obj", "slvn_debug.obj", "gtest_maind.lib", "gtestd.lib"}
+	links { "vulkan-1.lib",
+			"glfw3.lib",
+			"slvn_render_engine.obj",
+			"slvn_abstract_engine.obj",
+			"slvn_debug.obj",
+			"slvn_abstract_instance.obj",
+			"slvn_instance.obj",
+			"gtest_maind.lib", 
+			"gtestd.lib",
+			}
 	configuration "x64"
 		libdirs {}
 		
@@ -107,7 +121,9 @@ project "slvn-tech-unittest"
 					"./VULKAN_SDK/lib", 
 					"./builds/obj/Debug/x64/x64/Debug/slvn-tech", 
 					"./src/Debug",
-					"./googletest/lib/Debug"}
+					"./googletest/lib/Debug",
+					"../slvn-tech-local-dependencies/glfw/Debug"}
+		cppdialect "C++17"
 	configuration "macosx"
 
 	configuration "Debug"

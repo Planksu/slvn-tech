@@ -29,12 +29,12 @@
 namespace slvn_tech
 {
 
-SLVNAbstractEngine::SLVNAbstractEngine()
+SlvnAbstractEngine::SlvnAbstractEngine()
 {
     // Nothing to construct for abstract class
 }
 
-SLVNAbstractEngine::~SLVNAbstractEngine()
+SlvnAbstractEngine::~SlvnAbstractEngine()
 {
     // Nothing to destruct for abstract class
 }

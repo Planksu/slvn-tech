@@ -30,24 +30,27 @@
 #include <vulkan/vulkan.h>
 
 #include <abstract/slvn_abstract_engine.h>
+#include <slvn_instance.h>
 #include <core.h>
 
 namespace slvn_tech
 {
 
-class SLVNRenderEngine : public SLVNAbstractEngine
+class SlvnRenderEngine : public SlvnAbstractEngine
 {
 public:
-    SLVNRenderEngine(int identif);
-    ~SLVNRenderEngine();
-    //bool operator!=(const SLVNRenderEngine& engine) const
-    //{
-    //    return this->identifier != engine.identifier;
-    //}
+    SlvnRenderEngine(int identif);
+    ~SlvnRenderEngine();
 
 public:
-    SLVNResult Initialize() override;
-    int identifier;
+    SlvnResult Initialize() override;
+
+    inline int GetIdentifier() { return mIdentifier; }
+    
+private:
+    SlvnInstance mInstance;
+    int mIdentifier;
+
 };
 
 }

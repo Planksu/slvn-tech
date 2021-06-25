@@ -29,8 +29,8 @@
 
 int main()
 {
-    slvn_tech::SLVNRenderEngine engine(1);
-    if (engine.Initialize() == SLVNResult::kOk)
+    slvn_tech::SlvnRenderEngine engine(1);
+    if (engine.Initialize() == SlvnResult::cOk)
     {
         SLVN_PRINT("SLVNRenderEngine initialization OK");
         return 0;

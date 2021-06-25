@@ -32,14 +32,14 @@
 namespace slvn_tech
 {
 
-class SLVNAbstractEngine
+class SlvnAbstractEngine
 {
 public:
-    SLVNAbstractEngine();
-    ~SLVNAbstractEngine();
+    SlvnAbstractEngine();
+    ~SlvnAbstractEngine();
 
 public:
-    virtual SLVNResult Initialize() = 0;
+    virtual SlvnResult Initialize() = 0;
 };
 
 }

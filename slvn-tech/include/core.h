@@ -29,10 +29,10 @@
 
 #include <stdint.h>
 
-enum class SLVNResult
+enum class SlvnResult
 {
-    kOk = 0,
-    kUnexpectedError
+    cOk = 0,
+    cUnexpectedError
 };
 
 #endif // SLVNCORE_H

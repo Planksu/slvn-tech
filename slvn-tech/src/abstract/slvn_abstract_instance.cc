@@ -24,41 +24,14 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#include <slvn_render_engine.h>
-#include <slvn_debug.h>
+#include <slvn_abstract_instance.h>
 
-namespace slvn_tech
+SlvnAbstractInstance::SlvnAbstractInstance()
 {
-
-SlvnRenderEngine::SlvnRenderEngine(int identif)
-{
-    mIdentifier = identif;
-    mInstance = SlvnInstance();
-    mInstance.Initialize();
+    // Nothing to construct in abstract class
 }
 
-SlvnRenderEngine::~SlvnRenderEngine()
+SlvnAbstractInstance::~SlvnAbstractInstance()
 {
-
+    // Nothing to destruct in abstract class
 }
-
-SlvnResult SlvnRenderEngine::Initialize()
-{
-    uint32_t extensionCount = 0;
-    VkResult result = vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, nullptr);
-    if (result != VK_SUCCESS)
-    {
-        SLVN_PRINT("Could NOT query extensions!");
-    }
-
-    SLVN_PRINT("extensionCount is: " << extensionCount);
-
-    if (extensionCount > 0)
-    {
-        return SlvnResult::cOk;
-    }
-
-    return SlvnResult::cUnexpectedError;
-}
-
-};
