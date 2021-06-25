@@ -30,9 +30,9 @@
 namespace slvn_tech
 {
 
-SLVNRenderEngine::SLVNRenderEngine()
+SLVNRenderEngine::SLVNRenderEngine(int identif)
 {
-
+    identifier = identif;
 }
 
 SLVNRenderEngine::~SLVNRenderEngine()

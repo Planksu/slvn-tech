@@ -38,11 +38,16 @@ namespace slvn_tech
 class SLVNRenderEngine : public SLVNAbstractEngine
 {
 public:
-    SLVNRenderEngine();
+    SLVNRenderEngine(int identif);
     ~SLVNRenderEngine();
+    //bool operator!=(const SLVNRenderEngine& engine) const
+    //{
+    //    return this->identifier != engine.identifier;
+    //}
 
 public:
     SLVNResult Initialize() override;
+    int identifier;
 };
 
 }
