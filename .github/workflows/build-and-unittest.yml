@@ -58,4 +58,4 @@ jobs:
       
     - name: Run unittest
       working-directory: ${{env.GITHUB_WORKSPACE}}
-      run: dir && cd builds/Debug/x64 && dir && cmd /K slvn-tech-unittest.exe
+      run: ${{env.GITHUB_WORKSPACE}}\builds\Debug\x64\slvn-tech-unittest.exe
