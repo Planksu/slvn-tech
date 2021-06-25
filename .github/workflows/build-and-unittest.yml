@@ -52,7 +52,10 @@ jobs:
       # Add additional options to the MSBuild command line here (like platform or verbosity level).
       # See https://docs.microsoft.com/visualstudio/msbuild/msbuild-command-line-reference
       run: msbuild /m /p:Platform=x64 /p:Configuration=${{env.BUILD_CONFIGURATION}} ${{env.SOLUTION_FILE_PATH}}/slvn-tech-unittest.vcxproj  
-      
+    
+    - name: Dir
+      run: dir && cd ${{env.GITHUB_WORKSPACE}} && dir && cd ${{env.GITHUB_WORKSPACE}}\builds\Debug\x64 && dir
+    
     - name: Append unittest to PATH
       run: echo ${{env.GITHUB_WORKSPACE}}\builds\Debug\x64 >> %GITHUB_PATH%
       
