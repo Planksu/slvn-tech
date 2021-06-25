@@ -56,11 +56,5 @@ jobs:
     - name: Dir
       run: dir && cd ${{ github.workspace }} && dir && cd ${{ github.workspace }}\builds\Debug\x64 && dir
       
-    - name: Setup VSTest.console.exe
-      # You may pin to the exact commit or the version.
-      # uses: darenm/Setup-VSTest@fbb574e849d6225ce9702f86e64eb6cdc4b4e561
-      uses: darenm/Setup-VSTest@v1
-    
     - name: Run tests
-      working-directory: ${{ github.workspace }}
-      run: run_tests.bat
+      run: ${{ github.workspace}}\run_tests.bat
