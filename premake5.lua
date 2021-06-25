@@ -78,13 +78,13 @@ project "slvn-tech"
 		
 project "slvn-tech-unittest"
 	targetname "slvn-tech-unittest"
-	kind "SharedLib"
+	kind "ConsoleApp"
 	language "C++"
 	files { "./slvn-tech/src/test/*.cpp",
 			"./slvn-tech/include/test/*.h"}
 
 	defines {}
-	links { "vulkan-1.lib", "glfw3.lib", "slvn_render_engine.obj", "slvn_abstract_engine.obj", "slvn_debug.obj"}
+	links { "vulkan-1.lib", "glfw3.lib", "slvn_render_engine.obj", "slvn_abstract_engine.obj", "slvn_debug.obj", "gtest_maind.lib", "gtestd.lib"}
 	configuration "x64"
 		libdirs {}
 		
@@ -99,14 +99,15 @@ project "slvn-tech-unittest"
 						"./slvn-tech/dependencies/glfw/include",
 						"./slvn-tech/dependencies/glm/glm",
 						"./VULKAN_SDK/include",
-						"$(VCInstallDir)UnitTest/include"}
+						"./googletest/googletest/include"}
 						
 		libdirs { 	"$(VCInstallDir)UnitTest/lib",
 					"$(VULKAN_SDK)/lib",
 					"./slvn-tech/VULKAN_SDK/lib", 
 					"./VULKAN_SDK/lib", 
 					"./builds/obj/Debug/x64/x64/Debug/slvn-tech", 
-					"./src/Debug" }
+					"./src/Debug",
+					"./googletest/lib/Debug"}
 	configuration "macosx"
 
 	configuration "Debug"
