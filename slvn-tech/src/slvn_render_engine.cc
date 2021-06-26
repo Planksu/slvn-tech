@@ -30,10 +30,9 @@
 namespace slvn_tech
 {
 
-SlvnRenderEngine::SlvnRenderEngine(int identif)
+SlvnRenderEngine::SlvnRenderEngine(int identif) : mInstance()
 {
     mIdentifier = identif;
-    mInstance = SlvnInstance();
     mInstance.Initialize();
 }
 
@@ -61,4 +60,9 @@ SlvnResult SlvnRenderEngine::Initialize()
     return SlvnResult::cUnexpectedError;
 }
 
-};
+SlvnResult SlvnRenderEngine::Deinitialize()
+{
+    return SlvnResult::cOk;
+}
+
+} // slvn_tech

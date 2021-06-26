@@ -24,16 +24,19 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#include <slvn_render_engine.h>
-#include <slvn_debug.h>
+#ifndef SLVNABSTRACTDEVICE_H
+#define SLVNABSTRACTDEVICE_H
 
-int main()
+namespace slvn_tech
 {
-    slvn_tech::SlvnRenderEngine engine(1);
-    if (engine.Initialize() == SlvnResult::cOk)
-    {
-        SLVN_PRINT("SLVNRenderEngine initialization OK");
-        return 0;
-    }
-    SLVN_PRINT("SLVNRenderEngine initialization NOK");
-}
+
+class SlvnAbstractDevice
+{
+public:
+    SlvnAbstractDevice() {}
+    ~SlvnAbstractDevice() {}
+};
+
+} // slvn_tech
+
+#endif // SLVNABSTRACTDEVICE_H

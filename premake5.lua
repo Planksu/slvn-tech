@@ -42,12 +42,11 @@ workspace "slvn-tech"
 
 project "slvn-tech"
 	targetname "slvn-tech"
-	kind "ConsoleApp"
+	kind "StaticLib"
 	language "C++"
 	files { "./slvn-tech/include/*.h",
 			"./slvn-tech/include/abstract/*.h",
-			"./slvn-tech/src/*.cc",
-			"./slvn-tech/src/abstract/*.cc"}
+			"./slvn-tech/src/*.cc"}
 
 	defines {}
 	links { "vulkan-1.lib", "glfw3.lib" }
@@ -91,13 +90,11 @@ project "slvn-tech-unittest"
 	defines {}
 	links { "vulkan-1.lib",
 			"glfw3.lib",
-			"slvn_render_engine.obj",
-			"slvn_abstract_engine.obj",
-			"slvn_debug.obj",
-			"slvn_abstract_instance.obj",
-			"slvn_instance.obj",
+			"slvn-tech.lib",
 			"gtest_maind.lib", 
 			"gtestd.lib",
+			"gmock_maind.lib",
+			"gmockd.lib"
 			}
 	configuration "x64"
 		libdirs {}
@@ -113,13 +110,14 @@ project "slvn-tech-unittest"
 						"./slvn-tech/dependencies/glfw/include",
 						"./slvn-tech/dependencies/glm/glm",
 						"./VULKAN_SDK/include",
-						"./googletest/googletest/include"}
+						"./googletest/googletest/include",
+						"./googletest/googlemock/include"}
 						
 		libdirs { 	"$(VCInstallDir)UnitTest/lib",
 					"$(VULKAN_SDK)/lib",
 					"./slvn-tech/VULKAN_SDK/lib", 
 					"./VULKAN_SDK/lib", 
-					"./builds/obj/Debug/x64/x64/Debug/slvn-tech", 
+					"./builds/Debug/x64", 
 					"./src/Debug",
 					"./googletest/lib/Debug",
 					"../slvn-tech-local-dependencies/glfw/Debug"}

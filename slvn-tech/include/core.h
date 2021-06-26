@@ -29,10 +29,15 @@
 
 #include <stdint.h>
 
+namespace slvn_tech
+{
+
 enum class SlvnResult
 {
     cOk = 0,
     cUnexpectedError
 };
+
+} // slvn_tech
 
 #endif // SLVNCORE_H

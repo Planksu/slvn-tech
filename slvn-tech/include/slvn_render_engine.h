@@ -39,20 +39,21 @@ namespace slvn_tech
 class SlvnRenderEngine : public SlvnAbstractEngine
 {
 public:
-    SlvnRenderEngine(int identif);
+    // TODO; explicit for now since only one parameter, change later
+    explicit SlvnRenderEngine(int identif);
     ~SlvnRenderEngine();
 
-public:
-    SlvnResult Initialize() override;
+    virtual SlvnResult Initialize() override;
+    virtual SlvnResult Deinitialize() override;
 
-    inline int GetIdentifier() { return mIdentifier; }
-    
+    virtual inline int GetIdentifier() { return mIdentifier; }
+
 private:
     SlvnInstance mInstance;
     int mIdentifier;
 
 };
 
-}
+} // slvn_tech
 
 #endif // SLVNRENDERENGINE_H

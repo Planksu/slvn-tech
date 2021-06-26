@@ -24,7 +24,7 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#include <slvn_abstract_engine.h>
+#include <abstract/slvn_abstract_engine.h>
 
 namespace slvn_tech
 {
@@ -39,4 +39,4 @@ SlvnAbstractEngine::~SlvnAbstractEngine()
     // Nothing to destruct for abstract class
 }
 
-};
+} // slvn_tech

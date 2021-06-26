@@ -24,19 +24,19 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef SLVNABSTRACTINSTANCE_H
-#define SLVNABSTRACTINSTANCE_H
+#ifndef SLVNABSTRACTMANAGER_H
+#define SLVNABSTRACTMANAGER_H
 
 #include <core.h>
 
 namespace slvn_tech
 {
 
-class SlvnAbstractInstance
+class SlvnAbstractManager
 {
 public:
-    SlvnAbstractInstance() {}
-    ~SlvnAbstractInstance() {}
+    SlvnAbstractManager() {}
+    ~SlvnAbstractManager() {}
 
     virtual SlvnResult Initialize() = 0;
     virtual SlvnResult Deinitialize() = 0;
@@ -45,4 +45,4 @@ public:
 } // slvn_tech
 
 
-#endif // SLVNABSTRACTINSTANCE_H
+#endif // SLVNABSTRACTMANAGER_H

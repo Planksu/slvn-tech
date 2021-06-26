@@ -24,14 +24,19 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#include <slvn_abstract_instance.h>
+#include <abstract/slvn_abstract_instance.h>
+
+namespace slvn_tech
+{
 
 SlvnAbstractInstance::SlvnAbstractInstance()
 {
-    // Nothing to construct in abstract class
+    // Nothing to construct for abstract class
 }
 
 SlvnAbstractInstance::~SlvnAbstractInstance()
 {
-    // Nothing to destruct in abstract class
+    // Nothing to destruct for abstract class
 }
+
+} // slvn_tech

@@ -32,7 +32,10 @@
 #include <slvn_debug.h>
 #include <core.h>
 
-SlvnInstance::SlvnInstance()
+namespace slvn_tech
+{
+
+SlvnInstance::SlvnInstance() : mInstance()
 {
 
 }
@@ -60,9 +63,15 @@ SlvnResult SlvnInstance::Initialize()
     return SlvnResult::cOk;
 }
 
+SlvnResult SlvnInstance::Deinitialize()
+{
+    return SlvnResult::cOk;
+}
+
 SlvnResult SlvnInstance::FillInstanceInfo(VkInstanceCreateInfo& instanceInfo, VkApplicationInfo& appInfo)
 {
     SlvnResult result = FillApplicationInfo(appInfo);
+    assert(result == SlvnResult::cOk);
 
     SLVN_PRINT("Assigning member variables of VkInstanceCreateInfo");
     instanceInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
@@ -88,3 +97,5 @@ SlvnResult SlvnInstance::FillApplicationInfo(VkApplicationInfo& appInfo)
     appInfo.apiVersion = VK_MAKE_API_VERSION(1, 2, 176, 1); // TODO somewhen; figure out absolute minimum version to run
     return SlvnResult::cOk;
 }
+
+} // slvn_tech

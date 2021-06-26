@@ -24,25 +24,61 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef SLVNABSTRACTINSTANCE_H
-#define SLVNABSTRACTINSTANCE_H
+#include <assert.h>
 
-#include <core.h>
+#include <vulkan/vulkan.h>
+
+#include <slvn_device_manager.h>
+#include <slvn_debug.h>
 
 namespace slvn_tech
 {
 
-class SlvnAbstractInstance
+SlvnDeviceManager::SlvnDeviceManager()
 {
-public:
-    SlvnAbstractInstance() {}
-    ~SlvnAbstractInstance() {}
 
-    virtual SlvnResult Initialize() = 0;
-    virtual SlvnResult Deinitialize() = 0;
-};
+}
+
+SlvnDeviceManager::~SlvnDeviceManager()
+{
+
+}
+
+SlvnResult SlvnDeviceManager::Initialize()
+{
+    SLVN_PRINT("Initializing SlvnDeviceManager");
+
+    return SlvnResult::cOk;
+}
+
+SlvnResult SlvnDeviceManager::Deinitialize()
+{
+    SLVN_PRINT("Deinitializing SlvnDeviceManager");
+
+    for (auto& device : mPhysicalDevices)
+    {
+        delete device;
+    }
+
+    return SlvnResult::cOk;
+}
+
+SlvnResult SlvnDeviceManager::EnumeratePhysicalDevices(VkInstance& instance)
+{
+    // When pPhysicalDevice is nullptr, physicalDeviceCount is used as output.
+    // Vulkan will return the amount of physical devices in the system.
+    uint32_t physicalDeviceCount = 0;
+    vkEnumeratePhysicalDevices(instance, &physicalDeviceCount, nullptr);
+
+    assert(physicalDeviceCount > 0);
+    
+    mPhysicalDevices.resize(physicalDeviceCount);
+    for (auto& device : mPhysicalDevices)
+    {
+        device = new VkPhysicalDevice();
+    }
+    vkEnumeratePhysicalDevices(instance, &physicalDeviceCount, mPhysicalDevices[0]);
+    return SlvnResult::cOk;
+}
 
 } // slvn_tech
-
-
-#endif // SLVNABSTRACTINSTANCE_H

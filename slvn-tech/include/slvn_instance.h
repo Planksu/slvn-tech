@@ -24,14 +24,16 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#include <vulkan/vulkan.h>
-
-#include <slvn_abstract_instance.h>
-#include <core.h>
-
 #ifndef SLVNINSTANCE_H
 #define SLVNINSTANCE_H
 
+#include <vulkan/vulkan.h>
+
+#include <abstract/slvn_abstract_instance.h>
+#include <core.h>
+
+namespace slvn_tech
+{
 
 /// <summary>
 /// SlvnInstance is a wrapper class for VkInstance from Vulkan. It's purpose is to split
@@ -44,6 +46,7 @@ public:
     ~SlvnInstance();
 
     SlvnResult Initialize() override;
+    SlvnResult Deinitialize() override;
 
 private:
     VkInstance mInstance;
@@ -52,5 +55,7 @@ private:
     SlvnResult FillInstanceInfo(VkInstanceCreateInfo& instanceInfo, VkApplicationInfo& appInfo);
     SlvnResult FillApplicationInfo(VkApplicationInfo& appInfo);
 };
+
+} // slvn_tech
 
 #endif // SLVNINSTANCE_H

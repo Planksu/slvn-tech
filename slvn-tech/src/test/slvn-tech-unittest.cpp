@@ -1,7 +1,12 @@
 #include "pch.h"
 
+#include <vulkan/vulkan.h>
+
 #include <slvn_render_engine.h>
+#include <slvn_instance.h>
 #include <core.h>
+
+using ::testing::AtLeast;
 
 namespace slvn_tech
 {

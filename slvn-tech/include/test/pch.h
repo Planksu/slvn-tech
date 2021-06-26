@@ -8,6 +8,7 @@
 #define PCH_H
 
 // add headers that you want to pre-compile here
-#include "gtest/gtest.h"
+#include <gtest/gtest.h>
+#include <gmock/gmock.h>
 
 #endif //PCH_H
