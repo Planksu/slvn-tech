@@ -27,6 +27,8 @@
 #ifndef SLVNINSTANCE_H
 #define SLVNINSTANCE_H
 
+#include <string>
+
 #include <vulkan/vulkan.h>
 
 #include <abstract/slvn_abstract_instance.h>
@@ -49,11 +51,19 @@ public:
     SlvnResult Initialize() override;
     SlvnResult Deinitialize() override;
 
+
+public:
     VkInstance mInstance;
     SlvnDeviceManager mDeviceManager;
+
 private:
-    SlvnResult FillInstanceInfo(VkInstanceCreateInfo& instanceInfo, VkApplicationInfo& appInfo);
-    SlvnResult FillApplicationInfo(VkApplicationInfo& appInfo);
+    bool mValidationEnabled;
+    const std::string cValidationLayerName = "VK_LAYER_KHRONOS_validation";
+
+private:
+    SlvnResult fillInstanceInfo(VkInstanceCreateInfo& instanceInfo, VkApplicationInfo& appInfo, char**& enabledLayers, uint32_t& enabledLayerCount);
+    SlvnResult fillApplicationInfo(VkApplicationInfo& appInfo);
+    SlvnResult enumerateLayers();
 };
 
 } // slvn_tech

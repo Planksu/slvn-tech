@@ -32,10 +32,12 @@
 #include <slvn_debug.h>
 #include <core.h>
 
+#define SLVN_DEBUG_LAYER
+
 namespace slvn_tech
 {
 
-SlvnInstance::SlvnInstance() : mInstance(), mDeviceManager()
+SlvnInstance::SlvnInstance() : mInstance(), mDeviceManager(), mValidationEnabled(false)
 {
     SLVN_PRINT("Constructing SlvnInstance object");
 }
@@ -56,10 +58,24 @@ SlvnResult SlvnInstance::Initialize()
 
     VkInstanceCreateInfo instanceInfo = {};
     VkApplicationInfo appInfo = {};
-    FillInstanceInfo(instanceInfo, appInfo);
+    char** enabledLayers;
+    uint32_t enabledLayerCount = 0;
+
+    enumerateLayers();
+    fillInstanceInfo(instanceInfo, appInfo, enabledLayers, enabledLayerCount);
 
     VkResult result = vkCreateInstance(&instanceInfo, nullptr, &mInstance);
     assert(result == VK_SUCCESS);
+    
+    if (mValidationEnabled)
+    {
+        for (int i = 0; i < enabledLayerCount; i++)
+        {
+            delete[] enabledLayers[i];
+        }
+        delete[] enabledLayers;
+    }
+
     return SlvnResult::cOk;
 }
 
@@ -68,24 +84,43 @@ SlvnResult SlvnInstance::Deinitialize()
     return SlvnResult::cOk;
 }
 
-SlvnResult SlvnInstance::FillInstanceInfo(VkInstanceCreateInfo& instanceInfo, VkApplicationInfo& appInfo)
+SlvnResult SlvnInstance::fillInstanceInfo(VkInstanceCreateInfo& instanceInfo, VkApplicationInfo& appInfo, char**& enabledLayers, uint32_t& enabledLayerCount)
 {
-    SlvnResult result = FillApplicationInfo(appInfo);
+    SlvnResult result = fillApplicationInfo(appInfo);
     assert(result == SlvnResult::cOk);
+
+    enabledLayerCount = 0;
+
+    if (mValidationEnabled)
+    {
+        SLVN_PRINT("Validation is enabled");
+        enabledLayerCount = 1;
+        enabledLayers = new char*[enabledLayerCount];
+        for (int i = 0; i < enabledLayerCount; i++)
+        {
+            enabledLayers[i] = new char[cValidationLayerName.size() + 1];
+            std::strcpy(enabledLayers[i], cValidationLayerName.c_str());
+        }
+        instanceInfo.enabledLayerCount = enabledLayerCount;
+        instanceInfo.ppEnabledLayerNames = enabledLayers;
+    }
+    else
+    {
+        instanceInfo.enabledLayerCount = 0;
+        instanceInfo.ppEnabledLayerNames = nullptr;
+    }
 
     SLVN_PRINT("Assigning member variables of VkInstanceCreateInfo");
     instanceInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
     instanceInfo.pNext = nullptr;
     instanceInfo.flags = 0;
     instanceInfo.pApplicationInfo = &appInfo;
-    instanceInfo.enabledLayerCount = 0;
-    instanceInfo.ppEnabledLayerNames = nullptr;
     instanceInfo.enabledExtensionCount = 0;
     instanceInfo.ppEnabledExtensionNames = nullptr;
     return SlvnResult::cOk;
 }
 
-SlvnResult SlvnInstance::FillApplicationInfo(VkApplicationInfo& appInfo)
+SlvnResult SlvnInstance::fillApplicationInfo(VkApplicationInfo& appInfo)
 {
     SLVN_PRINT("Assigning member variables of VkApplicationInfo");
     appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
@@ -95,6 +130,38 @@ SlvnResult SlvnInstance::FillApplicationInfo(VkApplicationInfo& appInfo)
     appInfo.pEngineName = "slvn Tech"; // TODO; set as const?
     appInfo.engineVersion = VK_MAKE_API_VERSION(1, 0, 0, 1); // TODO; set as const?
     appInfo.apiVersion = VK_MAKE_API_VERSION(1, 2, 176, 1); // TODO somewhen; figure out absolute minimum version to run
+    return SlvnResult::cOk;
+}
+
+
+SlvnResult SlvnInstance::enumerateLayers()
+{
+    SLVN_PRINT("ENTER");
+#ifdef SLVN_DEBUG_LAYER
+    SLVN_PRINT("Enabling VK_LAYER_KHRONOS_validation layer");
+    std::vector<VkLayerProperties> properties;
+    uint32_t propertyCount = 0;
+    VkResult result = vkEnumerateInstanceLayerProperties(&propertyCount, nullptr);
+    if (result != VK_SUCCESS)
+        return SlvnResult::cUnexpectedError;
+
+    if (propertyCount <= 0)
+        return SlvnResult::cUnexpectedError;
+
+    properties.resize(propertyCount);
+    result = vkEnumerateInstanceLayerProperties(&propertyCount, properties.data());
+
+    for (auto& property : properties)
+    {
+        SLVN_PRINT(property.layerName);
+        SLVN_PRINT(property.description);
+
+        if (property.layerName == cValidationLayerName)
+            mValidationEnabled = true;
+    }
+    return SlvnResult::cOk;
+#endif
+    SLVN_PRINT("EXIT");
     return SlvnResult::cOk;
 }
 

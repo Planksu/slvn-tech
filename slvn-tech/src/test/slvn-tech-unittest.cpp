@@ -121,6 +121,12 @@ TEST(SLVN_TECH_UT_GRAPHICS_INSTANCE, 005)
 	EXPECT_EQ(result, slvn_tech::SlvnResult::cOk);
 	result = devMgr.CreateLogicalDevice();
 }
+TEST(SLVN_TECH_UT_GRAPHICS_INSTANCE_LAYERS, 001)
+{
+	slvn_tech::SlvnInstance instance = slvn_tech::SlvnInstance();
+	SlvnResult result = instance.Initialize();
+	EXPECT_EQ(result, slvn_tech::SlvnResult::cOk);
+}
 
 
 };

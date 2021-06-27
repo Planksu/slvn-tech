@@ -43,10 +43,10 @@ public:
     explicit SlvnRenderEngine(int identif);
     ~SlvnRenderEngine();
 
-    virtual SlvnResult Initialize() override;
-    virtual SlvnResult Deinitialize() override;
+    SlvnResult Initialize() override;
+    SlvnResult Deinitialize() override;
 
-    virtual inline int GetIdentifier() { return mIdentifier; }
+    inline int GetIdentifier() { return mIdentifier; }
 
 private:
     SlvnInstance mInstance;

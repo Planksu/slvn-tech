@@ -24,13 +24,15 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+#include <vector>
+
 #include <slvn_render_engine.h>
 #include <slvn_debug.h>
 
 namespace slvn_tech
 {
 
-SlvnRenderEngine::SlvnRenderEngine(int identif) : mInstance()
+SlvnRenderEngine::SlvnRenderEngine(int identif) : mInstance(), mIdentifier(0)
 {
     SLVN_PRINT("Constructing SlvnRenderEngine object");
     
@@ -66,5 +68,6 @@ SlvnResult SlvnRenderEngine::Deinitialize()
 {
     return SlvnResult::cOk;
 }
+
 
 } // slvn_tech

@@ -65,11 +65,16 @@ SlvnResult SlvnDevice::CreateLogicalDevice()
 
     uint8_t queueFamilyIndex = findViableQueueFamilyIndex();
     VkDeviceQueueCreateInfo queueInfo = {};
+    uint32_t queueCount = mQueueFamilyProperties[queueFamilyIndex].queueCount;
     queueInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
     queueInfo.flags = 0;
     queueInfo.queueFamilyIndex = queueFamilyIndex;
-    queueInfo.queueCount = mQueueFamilyProperties[queueFamilyIndex].queueCount;
-    queueInfo.pQueuePriorities = nullptr; 
+    queueInfo.queueCount = queueCount;
+   
+    // TODO; change default priorities to something that makes more sense.
+    std::vector<float> queuePriorities;
+    queuePriorities.resize(queueCount, 1.0f);
+    queueInfo.pQueuePriorities = queuePriorities.data();
 
     // TODO CRITICAL; dont blindly enable all features, could come with performance impacts.
     VkPhysicalDeviceFeatures features = {};
@@ -85,6 +90,7 @@ SlvnResult SlvnDevice::CreateLogicalDevice()
     info.ppEnabledLayerNames = nullptr;
     info.pQueueCreateInfos = &queueInfo;
     info.pEnabledFeatures = &features;
+    info.queueCreateInfoCount = 1;
 
     VkResult result = vkCreateDevice(mPhysicalDevice, &info, nullptr, &mLogicalDevice);
     assert(result == VK_SUCCESS);
@@ -114,7 +120,7 @@ uint8_t SlvnDevice::findViableQueueFamilyIndex()
 
     for (int i = 0; i < mQueueFamilyProperties.size(); i++)
     {
-        if (mQueueFamilyProperties[i].queueCount <= 0 ||
+        if (mQueueFamilyProperties[i].queueCount == 0 ||
             (mQueueFamilyProperties[i].queueFlags & VK_QUEUE_GRAPHICS_BIT) == 0 ||
             (mQueueFamilyProperties[i].queueFlags & VK_QUEUE_COMPUTE_BIT) == 0 ||
             (mQueueFamilyProperties[i].queueFlags & VK_QUEUE_TRANSFER_BIT) == 0 ||
@@ -128,6 +134,7 @@ uint8_t SlvnDevice::findViableQueueFamilyIndex()
     }
 
     SLVN_PRINT("EXIT");
+    return -1;
 }
 
 } // slvn_tech
