@@ -35,9 +35,9 @@
 namespace slvn_tech
 {
 
-SlvnInstance::SlvnInstance() : mInstance()
+SlvnInstance::SlvnInstance() : mInstance(), mDeviceManager()
 {
-
+    SLVN_PRINT("Constructing SlvnInstance object");
 }
 
 SlvnInstance::~SlvnInstance()

@@ -24,19 +24,20 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef SLVNABSTRACTDEVICE_H
-#define SLVNABSTRACTDEVICE_H
+#include <slvn_queue.h>
+#include <slvn_debug.h>
 
 namespace slvn_tech
 {
 
-class SlvnAbstractDevice
+SlvnQueue::SlvnQueue()
 {
-public:
-    SlvnAbstractDevice() {}
-    ~SlvnAbstractDevice() {}
-};
+    SLVN_PRINT("Constructing SlvnQueue object");
+}
 
-} // slvn_tech
+SlvnQueue::~SlvnQueue()
+{
 
-#endif // SLVNABSTRACTDEVICE_H
+}
+
+}

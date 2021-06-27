@@ -30,6 +30,7 @@
 #include <vulkan/vulkan.h>
 
 #include <abstract/slvn_abstract_instance.h>
+#include <slvn_device_manager.h>
 #include <core.h>
 
 namespace slvn_tech
@@ -48,9 +49,8 @@ public:
     SlvnResult Initialize() override;
     SlvnResult Deinitialize() override;
 
-private:
     VkInstance mInstance;
-
+    SlvnDeviceManager mDeviceManager;
 private:
     SlvnResult FillInstanceInfo(VkInstanceCreateInfo& instanceInfo, VkApplicationInfo& appInfo);
     SlvnResult FillApplicationInfo(VkApplicationInfo& appInfo);

@@ -30,18 +30,19 @@
 
 #include <slvn_device_manager.h>
 #include <slvn_debug.h>
+#include <slvn_device.h>
 
 namespace slvn_tech
 {
 
 SlvnDeviceManager::SlvnDeviceManager()
 {
-
+    SLVN_PRINT("Constructing SlvnDeviceManager object");
 }
 
 SlvnDeviceManager::~SlvnDeviceManager()
 {
-
+    Deinitialize();
 }
 
 SlvnResult SlvnDeviceManager::Initialize()
@@ -55,7 +56,7 @@ SlvnResult SlvnDeviceManager::Deinitialize()
 {
     SLVN_PRINT("Deinitializing SlvnDeviceManager");
 
-    for (auto& device : mPhysicalDevices)
+    for (auto& device : mDevices)
     {
         delete device;
     }
@@ -65,19 +66,56 @@ SlvnResult SlvnDeviceManager::Deinitialize()
 
 SlvnResult SlvnDeviceManager::EnumeratePhysicalDevices(VkInstance& instance)
 {
+    SLVN_PRINT("Enumerating physical devices");
     // When pPhysicalDevice is nullptr, physicalDeviceCount is used as output.
     // Vulkan will return the amount of physical devices in the system.
     uint32_t physicalDeviceCount = 0;
     vkEnumeratePhysicalDevices(instance, &physicalDeviceCount, nullptr);
 
     assert(physicalDeviceCount > 0);
+    SLVN_PRINT("Discovered physical devices in system: " << physicalDeviceCount);
     
-    mPhysicalDevices.resize(physicalDeviceCount);
-    for (auto& device : mPhysicalDevices)
+    mDevices.resize(physicalDeviceCount);
+    for (auto& device : mDevices)
     {
-        device = new VkPhysicalDevice();
+        device = new SlvnDevice();
     }
-    vkEnumeratePhysicalDevices(instance, &physicalDeviceCount, mPhysicalDevices[0]);
+
+    vkEnumeratePhysicalDevices(instance, &physicalDeviceCount, &mDevices[0]->mPhysicalDevice);
+    return SlvnResult::cOk;
+}
+
+SlvnResult SlvnDeviceManager::GetDeviceProperties()
+{
+    SLVN_PRINT("Getting physical device properties");
+    for (auto& device : mDevices)
+    {
+        vkGetPhysicalDeviceProperties(device->mPhysicalDevice, &device->mPhyProperties);
+    }
+
+    return SlvnResult::cOk;
+}
+
+SlvnResult SlvnDeviceManager::GetDeviceQueueInfo()
+{
+    SLVN_PRINT("ENTER");
+    for (auto& device : mDevices)
+    {
+        device->GetQueueFamilyProperties();
+    }
+    SLVN_PRINT("EXIT");
+    return SlvnResult::cOk;
+}
+
+SlvnResult SlvnDeviceManager::CreateLogicalDevice()
+{
+    SLVN_PRINT("ENTER");
+
+    // Assume for now that device at index 0 is the correct one.
+    // Correct this system once more knowledge about subject is acquired.
+    mDevices[0]->CreateLogicalDevice();
+
+    SLVN_PRINT("EXIT");
     return SlvnResult::cOk;
 }
 

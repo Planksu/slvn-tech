@@ -32,6 +32,8 @@ namespace slvn_tech
 
 SlvnRenderEngine::SlvnRenderEngine(int identif) : mInstance()
 {
+    SLVN_PRINT("Constructing SlvnRenderEngine object");
+    
     mIdentifier = identif;
     mInstance.Initialize();
 }

@@ -24,19 +24,110 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+#include <assert.h>
+
 #include <slvn_device.h>
+#include <slvn_debug.h>
 
 namespace slvn_tech
 {
 
-SlvnDevice::SlvnDevice()
+SlvnDevice::SlvnDevice() : mPhysicalDevice(), mPhyProperties(), mLogicalDevice()
 {
-
+    SLVN_PRINT("Constructing SlvnDevice object");
 }
 
 SlvnDevice::~SlvnDevice()
 {
-
+    SLVN_PRINT("Destructing SlvnDevice object");
 }
 
+SlvnResult SlvnDevice::GetQueueFamilyProperties()
+{
+    SLVN_PRINT("ENTER");
+    uint32_t queueFamilyPropertyCount = 0;
+    vkGetPhysicalDeviceQueueFamilyProperties(mPhysicalDevice, &queueFamilyPropertyCount, nullptr);
+
+    assert(queueFamilyPropertyCount > 0);
+    SLVN_PRINT("queueFamilyPropertyCount: " << queueFamilyPropertyCount);
+
+    mQueueFamilyProperties.resize(queueFamilyPropertyCount);
+    vkGetPhysicalDeviceQueueFamilyProperties(mPhysicalDevice, &queueFamilyPropertyCount, mQueueFamilyProperties.data());
+    checkQueueFamilyProperties();
+
+    SLVN_PRINT("EXIT");
+    return SlvnResult::cOk;
 }
+
+SlvnResult SlvnDevice::CreateLogicalDevice()
+{
+    SLVN_PRINT("ENTER");
+
+    uint8_t queueFamilyIndex = findViableQueueFamilyIndex();
+    VkDeviceQueueCreateInfo queueInfo = {};
+    queueInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+    queueInfo.flags = 0;
+    queueInfo.queueFamilyIndex = queueFamilyIndex;
+    queueInfo.queueCount = mQueueFamilyProperties[queueFamilyIndex].queueCount;
+    queueInfo.pQueuePriorities = nullptr; 
+
+    // TODO CRITICAL; dont blindly enable all features, could come with performance impacts.
+    VkPhysicalDeviceFeatures features = {};
+    vkGetPhysicalDeviceFeatures(mPhysicalDevice, &features);
+
+    VkDeviceCreateInfo info = {};
+    info.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
+    info.pNext = nullptr;
+    info.flags = 0;
+    info.enabledExtensionCount = 0;
+    info.enabledLayerCount = 0; 
+    info.ppEnabledExtensionNames = nullptr;
+    info.ppEnabledLayerNames = nullptr;
+    info.pQueueCreateInfos = &queueInfo;
+    info.pEnabledFeatures = &features;
+
+    VkResult result = vkCreateDevice(mPhysicalDevice, &info, nullptr, &mLogicalDevice);
+    assert(result == VK_SUCCESS);
+    return SlvnResult::cOk;
+
+    SLVN_PRINT("EXIT");
+}
+
+SlvnResult SlvnDevice::checkQueueFamilyProperties()
+{ 
+    SLVN_PRINT("ENTER");
+    for (auto& properties : mQueueFamilyProperties)
+    {
+        SLVN_PRINT("queueCount: " << properties.queueCount);
+        SLVN_PRINT("queueFlags: GRAPHICS_BIT: " << (properties.queueFlags & VK_QUEUE_GRAPHICS_BIT));
+        SLVN_PRINT("queueFlags: COMPUTE_BIT: " << (properties.queueFlags & VK_QUEUE_COMPUTE_BIT));
+        SLVN_PRINT("queueFlags: TRANSFER_BIT: " << (properties.queueFlags & VK_QUEUE_TRANSFER_BIT));
+        SLVN_PRINT("queueFlags: SPARSE_BINDING: " << (properties.queueFlags & VK_QUEUE_SPARSE_BINDING_BIT));
+    }
+    SLVN_PRINT("EXIT");
+    return SlvnResult::cOk;
+}
+
+uint8_t SlvnDevice::findViableQueueFamilyIndex()
+{
+    SLVN_PRINT("ENTER");
+
+    for (int i = 0; i < mQueueFamilyProperties.size(); i++)
+    {
+        if (mQueueFamilyProperties[i].queueCount <= 0 ||
+            (mQueueFamilyProperties[i].queueFlags & VK_QUEUE_GRAPHICS_BIT) == 0 ||
+            (mQueueFamilyProperties[i].queueFlags & VK_QUEUE_COMPUTE_BIT) == 0 ||
+            (mQueueFamilyProperties[i].queueFlags & VK_QUEUE_TRANSFER_BIT) == 0 ||
+            (mQueueFamilyProperties[i].queueFlags & VK_QUEUE_SPARSE_BINDING_BIT) == 0)
+        {
+            continue;
+        }
+
+        // If we reach here, we have a viable queue.
+        return i;
+    }
+
+    SLVN_PRINT("EXIT");
+}
+
+} // slvn_tech

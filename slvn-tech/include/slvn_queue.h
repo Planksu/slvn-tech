@@ -24,40 +24,19 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef SLVNDEVICE_H
-#define SLVNDEVICE_H
-
-#include <vector>
-
-#include <vulkan/vulkan.h>
-#include <core.h>
-#include <slvn_queue.h>
+#ifndef SLVNQUEUE_H
+#define SLVNQUEUE_H
 
 namespace slvn_tech
 {
 
-class SlvnDevice
+class SlvnQueue
 {
 public:
-    SlvnDevice();
-    ~SlvnDevice();
-
-    SlvnResult GetQueueFamilyProperties();
-    SlvnResult CreateLogicalDevice();
-
-private:
-    SlvnResult checkQueueFamilyProperties();
-    uint8_t findViableQueueFamilyIndex();
-   
-public:
-    VkPhysicalDevice mPhysicalDevice;
-    VkPhysicalDeviceProperties mPhyProperties;
-    VkDevice mLogicalDevice;
-
-    std::vector<SlvnQueue*> mQueues;
-    std::vector<VkQueueFamilyProperties> mQueueFamilyProperties;
+    SlvnQueue();
+    ~SlvnQueue();
 };
 
 } // slvn_tech
 
-#endif // SLVNDEVICE_H
+#endif // SLVNQUEUE_H
