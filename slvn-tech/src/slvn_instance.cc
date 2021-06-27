@@ -44,7 +44,8 @@ SlvnInstance::SlvnInstance() : mInstance(), mDeviceManager(), mValidationEnabled
 
 SlvnInstance::~SlvnInstance()
 {
-
+    SLVN_PRINT("Destructing SlvnInstance object");
+    vkDestroyInstance(mInstance, nullptr);
 }
 
 SlvnResult SlvnInstance::Initialize()

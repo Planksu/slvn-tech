@@ -40,6 +40,11 @@ SlvnDevice::SlvnDevice() : mPhysicalDevice(), mPhyProperties(), mLogicalDevice()
 SlvnDevice::~SlvnDevice()
 {
     SLVN_PRINT("Destructing SlvnDevice object");
+    if (mLogicalDevice != NULL)
+    {
+        vkDeviceWaitIdle(mLogicalDevice);
+        vkDestroyDevice(mLogicalDevice, nullptr);
+    }
 }
 
 SlvnResult SlvnDevice::GetQueueFamilyProperties()
