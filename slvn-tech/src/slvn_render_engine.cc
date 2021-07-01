@@ -24,6 +24,7 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+#include <assert.h>
 #include <vector>
 
 #include <slvn_render_engine.h>
@@ -37,15 +38,37 @@ SlvnRenderEngine::SlvnRenderEngine(int identif) : mInstance(), mIdentifier(0)
     SLVN_PRINT("Constructing SlvnRenderEngine object");
     
     mIdentifier = identif;
-    mInstance.Initialize();
 }
 
 SlvnRenderEngine::~SlvnRenderEngine()
 {
-
+    Deinitialize();
 }
 
 SlvnResult SlvnRenderEngine::Initialize()
+{
+    SlvnResult result = enumerateExtensions();
+    return result;
+}
+
+SlvnResult SlvnRenderEngine::Deinitialize()
+{
+    // Vulkan components must be destroyed in a "reverse" order from creation.
+    // This means that command buffers -> devices -> instances for example would be a valid destroying order.
+    // Call Deinitialize() in reverse order to get bottom-to-top destruction order.
+    for (auto& device : mInstance.mDeviceManager.mDevices)
+    {
+        device->Deinitialize();
+    }
+    SlvnResult result = mInstance.mDeviceManager.Deinitialize();
+    assert(result == SlvnResult::cOk);
+    result = mInstance.Deinitialize();
+    assert(result == SlvnResult::cOk);
+
+    return SlvnResult::cOk;
+}
+
+SlvnResult SlvnRenderEngine::enumerateExtensions()
 {
     uint32_t extensionCount = 0;
     VkResult result = vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, nullptr);
@@ -64,10 +87,7 @@ SlvnResult SlvnRenderEngine::Initialize()
     return SlvnResult::cUnexpectedError;
 }
 
-SlvnResult SlvnRenderEngine::Deinitialize()
-{
-    return SlvnResult::cOk;
-}
+
 
 
 } // slvn_tech

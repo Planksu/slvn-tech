@@ -42,6 +42,7 @@ public:
     SlvnDevice();
     ~SlvnDevice();
 
+    SlvnResult Deinitialize();
     SlvnResult GetQueueFamilyProperties();
     SlvnResult CreateLogicalDevice();
 
@@ -56,6 +57,11 @@ public:
 
     std::vector<SlvnQueue*> mQueues;
     std::vector<VkQueueFamilyProperties> mQueueFamilyProperties;
+
+    bool mPrimaryDevice;
+
+private:
+    SlvnState mState;
 };
 
 } // slvn_tech

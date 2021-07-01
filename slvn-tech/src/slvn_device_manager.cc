@@ -35,19 +35,27 @@
 namespace slvn_tech
 {
 
-SlvnDeviceManager::SlvnDeviceManager()
+SlvnDeviceManager::SlvnDeviceManager() : mState(SlvnState::cNotInitialized)
 {
     SLVN_PRINT("Constructing SlvnDeviceManager object");
 }
 
 SlvnDeviceManager::~SlvnDeviceManager()
 {
-    Deinitialize();
+    if (mState != SlvnState::cDeinitialized)
+        SLVN_PRINT("\n\nERROR: destructor was invoked even though Deinitialize() was not called! Vulkan error state!\n\n");
 }
 
-SlvnResult SlvnDeviceManager::Initialize()
+SlvnResult SlvnDeviceManager::Initialize(VkInstance& instance)
 {
     SLVN_PRINT("Initializing SlvnDeviceManager");
+    EnumeratePhysicalDevices(instance);
+    GetDeviceProperties();
+    GetDeviceQueueInfo();
+    CreateLogicalDevice();
+
+    if(mState == SlvnState::cNotInitialized)
+        mState = SlvnState::cInitialized;
 
     return SlvnResult::cOk;
 }
@@ -61,7 +69,10 @@ SlvnResult SlvnDeviceManager::Deinitialize()
         delete device;
     }
 
+    if(mState == SlvnState::cInitialized)
+        mState = SlvnState::cDeinitialized;
     return SlvnResult::cOk;
+
 }
 
 SlvnResult SlvnDeviceManager::EnumeratePhysicalDevices(VkInstance& instance)

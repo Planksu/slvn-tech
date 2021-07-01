@@ -1,0 +1,31 @@
+Some small guidelines about engine design:
+
+
+
+Looking at a single engine system from high level downwards (top-down):
+
+Engine is the highest level of system component, and is the driving force of the 
+system. One example: render/draw system = slvn_render_engine. 
+Constructing an engine object doesn't initialize the system automatically, you must call
+the Initialize() method of the engine for it to allcoate all the required subcomponents
+and systems.
+
+Downwards from this; there is a mix of subcomponents in the form of classes and managers. 
+
+Managers manage subcomponents in cases that several instances of the same subcomponents can/have to be active
+simultaneously. Managers are members of engines. One example; Physical/Logical device manager = slvn_device_manager.
+Managers are allocated when their constructors are called, but this does not guarantee that
+the subcomponents they manage are allocated and initialized. Please check each individual manager
+implementation to see how the manager acts, as there can be differences.
+
+Subcomponents mostly appear as classes in implementation. Subcomponents are initialized
+and allocated when their constructor is called, and freed when their destructor is called.
+Subcomponents can own other subcomponents and are free to allocate memory, but they cannot own managers
+or engines as their members. 
+
+
+TL;DR = If using engine in external code, create engine and call Initialize() on engine.
+		If using engine/managers/subcomponents in engine code, setup implementation so that the engine->Initialize()
+		is enough to setup whole engine. Can make some exceptions if it seems unintuitive, let's see.
+
+

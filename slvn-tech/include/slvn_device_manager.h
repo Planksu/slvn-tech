@@ -43,7 +43,7 @@ public:
     SlvnDeviceManager();
     ~SlvnDeviceManager();
 
-    SlvnResult Initialize() override;
+    SlvnResult Initialize(VkInstance& instance) override;
     SlvnResult Deinitialize() override;
     SlvnResult EnumeratePhysicalDevices(VkInstance& instance);
     SlvnResult GetDeviceProperties();
@@ -51,6 +51,9 @@ public:
     SlvnResult CreateLogicalDevice();
 
     std::vector<SlvnDevice*> mDevices;
+
+private:
+    SlvnState mState;
 };
 
 } // slvn_tech

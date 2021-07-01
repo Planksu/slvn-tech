@@ -38,6 +38,14 @@ enum class SlvnResult
     cUnexpectedError
 };
 
+enum class SlvnState
+{
+    cNotInitialized = 0,
+    cInitialized,
+    cDeinitialized,
+    cError
+};
+
 } // slvn_tech
 
 #endif // SLVNCORE_H

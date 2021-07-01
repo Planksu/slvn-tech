@@ -1,2 +1,2 @@
 cd builds\Debug\x64
-slvn-tech-unittest.exe
+"C:\Program Files (x86)\Dr. Memory\bin64\drmemory.exe" slvn-tech-unittest.exe

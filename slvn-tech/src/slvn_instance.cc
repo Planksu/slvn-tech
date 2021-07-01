@@ -37,20 +37,26 @@
 namespace slvn_tech
 {
 
-SlvnInstance::SlvnInstance() : mInstance(), mDeviceManager(), mValidationEnabled(false)
+SlvnInstance::SlvnInstance() : mVkInstance(VK_NULL_HANDLE), mDeviceManager(), mValidationEnabled(false), mState(SlvnState::cNotInitialized)
 {
     SLVN_PRINT("Constructing SlvnInstance object");
+
+    Initialize();
+
+    // Device manager initialization needs reference to active VkInstance.
+    // Initialize after vkCreateInstance is called successfully.
+    mDeviceManager.Initialize(mVkInstance);
 }
 
 SlvnInstance::~SlvnInstance()
 {
-    SLVN_PRINT("Destructing SlvnInstance object");
-    vkDestroyInstance(mInstance, nullptr);
+    if (mState != SlvnState::cDeinitialized)
+        SLVN_PRINT("\n\nERROR: destructor was invoked even though Deinitialize() was not called! Vulkan error state!\n\n");
 }
 
 SlvnResult SlvnInstance::Initialize()
 {
-    SLVN_PRINT("Initializing SLVNInstance");
+    SLVN_PRINT("ENTER");
 
     // "Application-owned memory is immediately consumed by any Vulkan command it is passed into.
     // The application can alter or free this memory as soon as the commands that consume it have returned."
@@ -65,8 +71,10 @@ SlvnResult SlvnInstance::Initialize()
     enumerateLayers();
     fillInstanceInfo(instanceInfo, appInfo, enabledLayers, enabledLayerCount);
 
-    VkResult result = vkCreateInstance(&instanceInfo, nullptr, &mInstance);
+    VkResult result = vkCreateInstance(&instanceInfo, nullptr, &mVkInstance);
     assert(result == VK_SUCCESS);
+
+
     
     if (mValidationEnabled)
     {
@@ -77,16 +85,30 @@ SlvnResult SlvnInstance::Initialize()
         delete[] enabledLayers;
     }
 
+    if (mState == SlvnState::cNotInitialized)
+        mState = SlvnState::cInitialized;
+
+    SLVN_PRINT("EXIT");
     return SlvnResult::cOk;
 }
 
 SlvnResult SlvnInstance::Deinitialize()
 {
+    SLVN_PRINT("ENTER");
+
+    vkDestroyInstance(mVkInstance, nullptr);
+
+    if (mState == SlvnState::cInitialized)
+        mState = SlvnState::cDeinitialized;
+
+    SLVN_PRINT("EXIT");
     return SlvnResult::cOk;
 }
 
 SlvnResult SlvnInstance::fillInstanceInfo(VkInstanceCreateInfo& instanceInfo, VkApplicationInfo& appInfo, char**& enabledLayers, uint32_t& enabledLayerCount)
 {
+    SLVN_PRINT("ENTER");
+
     SlvnResult result = fillApplicationInfo(appInfo);
     assert(result == SlvnResult::cOk);
 
@@ -118,11 +140,15 @@ SlvnResult SlvnInstance::fillInstanceInfo(VkInstanceCreateInfo& instanceInfo, Vk
     instanceInfo.pApplicationInfo = &appInfo;
     instanceInfo.enabledExtensionCount = 0;
     instanceInfo.ppEnabledExtensionNames = nullptr;
+
+    SLVN_PRINT("EXIT");
     return SlvnResult::cOk;
 }
 
 SlvnResult SlvnInstance::fillApplicationInfo(VkApplicationInfo& appInfo)
 {
+    SLVN_PRINT("ENTER");
+
     SLVN_PRINT("Assigning member variables of VkApplicationInfo");
     appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
     appInfo.pNext = nullptr;
@@ -131,6 +157,8 @@ SlvnResult SlvnInstance::fillApplicationInfo(VkApplicationInfo& appInfo)
     appInfo.pEngineName = "slvn Tech"; // TODO; set as const?
     appInfo.engineVersion = VK_MAKE_API_VERSION(1, 0, 0, 1); // TODO; set as const?
     appInfo.apiVersion = VK_MAKE_API_VERSION(1, 2, 176, 1); // TODO somewhen; figure out absolute minimum version to run
+
+    SLVN_PRINT("EXIT");
     return SlvnResult::cOk;
 }
 

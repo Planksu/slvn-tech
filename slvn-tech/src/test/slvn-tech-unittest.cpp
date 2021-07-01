@@ -55,77 +55,65 @@ TEST(SLVN_TECH_UT_GRAPHICS_DEVICE, 002)
 	device.mPhyProperties = vkProperties;
 	EXPECT_EQ(device.mPhysicalDevice, vkDevice);
 }
+TEST(SLVN_TECH_UT_GRAPHICS_DEVICE, 003)
+{
+	//slvn_tech::SlvnInstance instance = slvn_tech::SlvnInstance();
+	//SlvnResult result = instance.Initialize();
+	//EXPECT_EQ(result, slvn_tech::SlvnResult::cOk);
+	//slvn_tech::SlvnDeviceManager devMgr = slvn_tech::SlvnDeviceManager();
+	//result = devMgr.Initialize();
+	//EXPECT_EQ(result, slvn_tech::SlvnResult::cOk);
+	//result = devMgr.EnumeratePhysicalDevices(instance.mInstance);
+	//EXPECT_EQ(result, slvn_tech::SlvnResult::cOk);
+	//result = devMgr.GetDeviceProperties();
+	//EXPECT_EQ(result, slvn_tech::SlvnResult::cOk);
+	//result = devMgr.GetDeviceQueueInfo();
+	//EXPECT_EQ(result, slvn_tech::SlvnResult::cOk);
+	//result = devMgr.CreateLogicalDevice();
+	//EXPECT_EQ(result, slvn_tech::SlvnResult::cOk);
+	//EXPECT_EQ(devMgr.mDevices.size(), 1);
+	//EXPECT_EQ(devMgr.mDevices.front()->mPrimaryDevice, true); 
+
+	slvn_tech::SlvnRenderEngine* engine = new slvn_tech::SlvnRenderEngine(1);
+	engine->Initialize();
+	EXPECT_EQ(engine->mInstance.mDeviceManager.mDevices.front()->mPrimaryDevice, true);
+	EXPECT_EQ(engine->mInstance.mDeviceManager.mDevices.size(), 1);
+	delete engine;
+}
 TEST(SLVN_TECH_UT_GRAPHICS_INSTANCE, 001)
 {
-	slvn_tech::SlvnInstance instance = slvn_tech::SlvnInstance();
-	instance.Initialize();
-	slvn_tech::SlvnDeviceManager devMgr = slvn_tech::SlvnDeviceManager();
-	devMgr.Initialize();
-	SlvnResult result = devMgr.EnumeratePhysicalDevices(instance.mInstance);
+	//slvn_tech::SlvnInstance instance = slvn_tech::SlvnInstance();
+	//instance.Initialize();
+	//slvn_tech::SlvnDeviceManager devMgr = slvn_tech::SlvnDeviceManager();
+	//devMgr.Initialize();
+	//SlvnResult result = devMgr.EnumeratePhysicalDevices(instance.mInstance);
+	//EXPECT_EQ(result, slvn_tech::SlvnResult::cOk);
+
+	slvn_tech::SlvnRenderEngine* engine = new slvn_tech::SlvnRenderEngine(1);
+	SlvnResult result = engine->Initialize();
 	EXPECT_EQ(result, slvn_tech::SlvnResult::cOk);
+	delete engine;
 }
-TEST(SLVN_TECH_UT_GRAPHICS_INSTANCE, 002)
-{
-	slvn_tech::SlvnInstance instance = slvn_tech::SlvnInstance();
-	instance.Initialize();
-	slvn_tech::SlvnDeviceManager devMgr = slvn_tech::SlvnDeviceManager();
-	SlvnResult result = devMgr.Initialize();
-	EXPECT_EQ(result, slvn_tech::SlvnResult::cOk);
-	result = devMgr.EnumeratePhysicalDevices(instance.mInstance);
-	EXPECT_EQ(result, slvn_tech::SlvnResult::cOk);
-	result = devMgr.GetDeviceProperties();
-	EXPECT_EQ(result, slvn_tech::SlvnResult::cOk);
-}
+
 TEST(SLVN_TECH_UT_GRAPHICS_INSTANCE, 003)
 {
 	const std::string gpuName = "NVIDIA GeForce GTX 1080";
-	slvn_tech::SlvnInstance instance = slvn_tech::SlvnInstance();
-	instance.Initialize();
-	slvn_tech::SlvnDeviceManager devMgr = slvn_tech::SlvnDeviceManager();
-	SlvnResult result = devMgr.Initialize();
+	//slvn_tech::SlvnInstance instance = slvn_tech::SlvnInstance();
+	//instance.Initialize();
+	//slvn_tech::SlvnDeviceManager devMgr = slvn_tech::SlvnDeviceManager();
+	//SlvnResult result = devMgr.Initialize();
+	//EXPECT_EQ(result, slvn_tech::SlvnResult::cOk);
+	//result = devMgr.EnumeratePhysicalDevices(instance.mInstance);
+	//EXPECT_EQ(result, slvn_tech::SlvnResult::cOk);
+	//result = devMgr.GetDeviceProperties();
+	//EXPECT_EQ(result, slvn_tech::SlvnResult::cOk);
+	//EXPECT_EQ(gpuName, devMgr.mDevices[0]->mPhyProperties.deviceName);
+
+	slvn_tech::SlvnRenderEngine* engine = new slvn_tech::SlvnRenderEngine(1);
+	SlvnResult result = engine->Initialize();
 	EXPECT_EQ(result, slvn_tech::SlvnResult::cOk);
-	result = devMgr.EnumeratePhysicalDevices(instance.mInstance);
-	EXPECT_EQ(result, slvn_tech::SlvnResult::cOk);
-	result = devMgr.GetDeviceProperties();
-	EXPECT_EQ(result, slvn_tech::SlvnResult::cOk);
-	EXPECT_EQ(gpuName, devMgr.mDevices[0]->mPhyProperties.deviceName);
-}
-TEST(SLVN_TECH_UT_GRAPHICS_INSTANCE, 004)
-{
-	slvn_tech::SlvnInstance instance = slvn_tech::SlvnInstance();
-	SlvnResult result = instance.Initialize();
-	EXPECT_EQ(result, slvn_tech::SlvnResult::cOk);
-	slvn_tech::SlvnDeviceManager devMgr = slvn_tech::SlvnDeviceManager();
-	result = devMgr.Initialize();
-	EXPECT_EQ(result, slvn_tech::SlvnResult::cOk);
-	result = devMgr.EnumeratePhysicalDevices(instance.mInstance);
-	EXPECT_EQ(result, slvn_tech::SlvnResult::cOk);
-	result = devMgr.GetDeviceProperties();
-	EXPECT_EQ(result, slvn_tech::SlvnResult::cOk);
-	result = devMgr.GetDeviceQueueInfo();
-	EXPECT_EQ(result, slvn_tech::SlvnResult::cOk);
-}
-TEST(SLVN_TECH_UT_GRAPHICS_INSTANCE, 005)
-{
-	slvn_tech::SlvnInstance instance = slvn_tech::SlvnInstance();
-	SlvnResult result = instance.Initialize();
-	EXPECT_EQ(result, slvn_tech::SlvnResult::cOk);
-	slvn_tech::SlvnDeviceManager devMgr = slvn_tech::SlvnDeviceManager();
-	result = devMgr.Initialize();
-	EXPECT_EQ(result, slvn_tech::SlvnResult::cOk);
-	result = devMgr.EnumeratePhysicalDevices(instance.mInstance);
-	EXPECT_EQ(result, slvn_tech::SlvnResult::cOk);
-	result = devMgr.GetDeviceProperties();
-	EXPECT_EQ(result, slvn_tech::SlvnResult::cOk);
-	result = devMgr.GetDeviceQueueInfo();
-	EXPECT_EQ(result, slvn_tech::SlvnResult::cOk);
-	result = devMgr.CreateLogicalDevice();
-}
-TEST(SLVN_TECH_UT_GRAPHICS_INSTANCE_LAYERS, 001)
-{
-	slvn_tech::SlvnInstance instance = slvn_tech::SlvnInstance();
-	SlvnResult result = instance.Initialize();
-	EXPECT_EQ(result, slvn_tech::SlvnResult::cOk);
+	EXPECT_EQ(gpuName, engine->mInstance.mDeviceManager.mDevices[0]->mPhyProperties.deviceName);
+	delete engine;
 }
 
 

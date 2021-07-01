@@ -53,11 +53,12 @@ public:
 
 
 public:
-    VkInstance mInstance;
+    VkInstance mVkInstance;
     SlvnDeviceManager mDeviceManager;
 
 private:
     bool mValidationEnabled;
+    SlvnState mState;
     const std::string cValidationLayerName = "VK_LAYER_KHRONOS_validation";
 
 private:

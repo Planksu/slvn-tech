@@ -32,19 +32,33 @@
 namespace slvn_tech
 {
 
-SlvnDevice::SlvnDevice() : mPhysicalDevice(), mPhyProperties(), mLogicalDevice()
+SlvnDevice::SlvnDevice() : mPhysicalDevice(), mPhyProperties(), mLogicalDevice(), mPrimaryDevice(false), mState(SlvnState::cNotInitialized)
 {
     SLVN_PRINT("Constructing SlvnDevice object");
+
+    mState = SlvnState::cInitialized;
 }
 
 SlvnDevice::~SlvnDevice()
 {
-    SLVN_PRINT("Destructing SlvnDevice object");
+    if(mState != SlvnState::cDeinitialized)
+        SLVN_PRINT("\n\nERROR: destructor was invoked even though Deinitialize() was not called! Vulkan error state!\n\n");
+}
+
+SlvnResult SlvnDevice::Deinitialize()
+{
+    SLVN_PRINT("ENTER");
     if (mLogicalDevice != NULL)
     {
         vkDeviceWaitIdle(mLogicalDevice);
         vkDestroyDevice(mLogicalDevice, nullptr);
     }
+
+    if (mState == SlvnState::cInitialized)
+        mState = SlvnState::cDeinitialized;
+
+    SLVN_PRINT("EXIT");
+    return SlvnResult::cOk;
 }
 
 SlvnResult SlvnDevice::GetQueueFamilyProperties()
@@ -134,7 +148,12 @@ uint8_t SlvnDevice::findViableQueueFamilyIndex()
             continue;
         }
 
-        // If we reach here, we have a viable queue.
+        // Let's assume that for now we need a device that supports all queue properties.
+        // If we reach here, the aforementioned is true.
+        if (mPrimaryDevice)
+            SLVN_PRINT("WARNING: Possible error situation; attempting to set this device as primary while it already was primary device!");
+        mPrimaryDevice = true;
+
         return i;
     }
 

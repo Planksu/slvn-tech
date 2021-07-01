@@ -29,6 +29,8 @@
 
 #include <core.h>
 
+#include <vulkan/vulkan.h>
+
 namespace slvn_tech
 {
 
@@ -38,7 +40,7 @@ public:
     SlvnAbstractManager() {}
     ~SlvnAbstractManager() {}
 
-    virtual SlvnResult Initialize() = 0;
+    virtual SlvnResult Initialize(VkInstance& instance) = 0;
     virtual SlvnResult Deinitialize() = 0;
 };
 

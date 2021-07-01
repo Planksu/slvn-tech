@@ -49,6 +49,9 @@ public:
     inline int GetIdentifier() { return mIdentifier; }
 
 private:
+    SlvnResult enumerateExtensions();
+
+public:
     SlvnInstance mInstance;
     int mIdentifier;
 
