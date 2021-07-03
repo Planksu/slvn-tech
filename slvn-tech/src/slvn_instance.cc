@@ -46,12 +46,22 @@ SlvnInstance::SlvnInstance() : mVkInstance(VK_NULL_HANDLE), mDeviceManager(), mV
     // Device manager initialization needs reference to active VkInstance.
     // Initialize after vkCreateInstance is called successfully.
     mDeviceManager.Initialize(mVkInstance);
+
+    mCmdManager.Initialize(mVkInstance);
+    mCmdManager.SetWorkerDeviceRefs(mDeviceManager.GetPrimaryDevice()->mLogicalDevice);
+    mCmdManager.SetWorkerCmdPools(mDeviceManager.GetPrimaryDevice()->mLogicalDevice,
+        (VkCommandPoolCreateFlagBits)(VK_COMMAND_POOL_CREATE_TRANSIENT_BIT | VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT),
+        mDeviceManager.GetPrimaryDevice()->GetViableQueueFamilyIndex());
+    mCmdManager.SetWorkerQueues(mDeviceManager.GetPrimaryDevice()->mLogicalDevice,
+        mDeviceManager.GetPrimaryDevice()->GetViableQueueFamilyIndex(),
+        mDeviceManager.GetPrimaryDevice()->GetViableQueueCount());
+
 }
 
 SlvnInstance::~SlvnInstance()
 {
-    if (mState != SlvnState::cDeinitialized)
-        SLVN_PRINT("\n\nERROR: destructor was invoked even though Deinitialize() was not called! Vulkan error state!\n\n");
+    if (mState != SlvnState::cDeinitialized && mState != SlvnState::cNotInitialized)
+        SLVN_PRINT("\n\n ERROR; destructor called even though Deinitialize() not called! Memory handling error!");
 }
 
 SlvnResult SlvnInstance::Initialize()

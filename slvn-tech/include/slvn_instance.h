@@ -33,6 +33,7 @@
 
 #include <abstract/slvn_abstract_instance.h>
 #include <slvn_device_manager.h>
+#include <slvn_command_manager.h>
 #include <core.h>
 
 namespace slvn_tech
@@ -51,10 +52,10 @@ public:
     SlvnResult Initialize() override;
     SlvnResult Deinitialize() override;
 
-
 public:
     VkInstance mVkInstance;
     SlvnDeviceManager mDeviceManager;
+    SlvnCommandManager mCmdManager;
 
 private:
     bool mValidationEnabled;

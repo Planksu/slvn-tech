@@ -55,7 +55,15 @@ SlvnResult SlvnRenderEngine::Deinitialize()
 {
     // Vulkan components must be destroyed in a "reverse" order from creation.
     // This means that command buffers -> devices -> instances for example would be a valid destroying order.
-    // Call Deinitialize() in reverse order to get bottom-to-top destruction order.
+    // Call Deinitialize() in reverse order to get bottom-to-top destruction order
+
+    for (auto& worker : mInstance.mCmdManager.mWorkers)
+    {
+        VkDevice device = mInstance.mDeviceManager.GetPrimaryDevice()->mLogicalDevice;
+        worker.Deinitialize();
+    }
+    mInstance.mCmdManager.Deinitialize();
+
     for (auto& device : mInstance.mDeviceManager.mDevices)
     {
         device->Deinitialize();

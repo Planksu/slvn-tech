@@ -24,19 +24,42 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#include <abstract/slvn_abstract_engine.h>
+#ifndef SLVNCOMMANDMANAGER_H
+#define SLVNCOMMANDMANAGER_H
+
+#include <vector>
+
+#include <abstract/slvn_abstract_manager.h>
+#include <slvn_command_worker.h>
+#include <slvn_command_pool.h>
+
+#define SLVN_DEFAULT_WORKER_THREADS 16
 
 namespace slvn_tech
 {
 
-SlvnAbstractEngine::SlvnAbstractEngine()
+class SlvnCommandManager : public SlvnAbstractManager
 {
-    // Nothing to construct for abstract class
-}
+public:
+    SlvnCommandManager();
+    ~SlvnCommandManager();
 
-SlvnAbstractEngine::~SlvnAbstractEngine()
-{
-    // Nothing to destruct for abstract class
-}
+    SlvnResult Initialize(VkInstance& instance) override;
+    SlvnResult Deinitialize() override;
+
+    SlvnResult SetWorkerCmdPools(VkDevice& device, VkCommandPoolCreateFlagBits cmdPoolFlags, uint32_t queueFamilyIndex);
+    SlvnResult SetWorkerDeviceRefs(VkDevice& device);
+    SlvnResult SetWorkerQueues(VkDevice& device, uint32_t queueFamilyIndex, uint32_t queueCount);
+
+public:
+    std::vector<SlvnCommandWorker> mWorkers;
+
+private:
+    SlvnState mState;
+
+};
 
 } // slvn_tech
+
+
+#endif // SLVNCOMMANDMANAGER_H

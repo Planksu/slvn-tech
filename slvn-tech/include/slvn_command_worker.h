@@ -24,20 +24,57 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#include <slvn_queue.h>
+#ifndef SLVNCOMMANDWORKER_H
+#define SLVNCOMMANDWORKER_H
+
+#include <vulkan/vulkan.h>
+
+#include <core.h>
 #include <slvn_debug.h>
+#include <slvn_command_pool.h>
+#include <slvn_device.h>
 
 namespace slvn_tech
 {
 
-SlvnQueue::SlvnQueue()
+class SlvnCommandWorker
 {
-    SLVN_PRINT("Constructing SlvnQueue object");
-}
+public:
+    SlvnCommandWorker();
+    ~SlvnCommandWorker();
 
-SlvnQueue::~SlvnQueue()
-{
+    SlvnResult Initialize();
+    SlvnResult Deinitialize();
 
-}
+    void SetCmdPool(SlvnCommandPool* newCmdPool) { mCmdPool = newCmdPool; }
+    void SetDeviceRef(VkDevice& newDeviceRef) { mLogicalDeviceRef = newDeviceRef; }
+    void SetQueue(VkQueue* newQueue) { mQueue = newQueue; }
 
-}
+private:
+    SlvnResult allocateBuffer();
+    SlvnResult beginBuffer();
+    SlvnResult endBuffer();
+    SlvnResult resetBuffer(VkCommandBufferResetFlags flags);
+
+private:
+    SlvnState mState;
+    VkCommandBuffer mCmdBuffer;
+
+    // mCmdPool is allocated by SlvnCommandManager and assigned to each worker separately.
+    // The SlvnCommandWorker is responsible for freeing it if there is memory allocated.
+    SlvnCommandPool* mCmdPool;
+
+    // mLogicalDeviceRef is a reference pointer to VkDevice from the primary acting device.
+    // It must be used for allocating command buffers and deleting them.
+    // No allocation/deallocation handled in SlvnCommandWorker.
+    VkDevice mLogicalDeviceRef;
+
+    // There is a single queue for each worker.
+    // Queues will be retrieved and set by SlvnCommandManager.
+    VkQueue* mQueue;
+
+};
+
+} // slvn_tech
+
+#endif // SLVNCOMMANDWORKER_H

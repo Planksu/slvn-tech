@@ -24,19 +24,42 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#include <abstract/slvn_abstract_instance.h>
+#ifndef SLVNCOMMANDPOOL_H
+#define SLVNCOMMANDPOOL_H
+
+#include <vulkan/vulkan.h>
+
+#include <slvn_debug.h>
+#include <core.h>
 
 namespace slvn_tech
 {
 
-SlvnAbstractInstance::SlvnAbstractInstance()
+class SlvnCommandPool
 {
-    // Nothing to construct for abstract class
-}
+public:
+    SlvnCommandPool();
+    ~SlvnCommandPool();
 
-SlvnAbstractInstance::~SlvnAbstractInstance()
-{
-    // Nothing to destruct for abstract class
-}
+    SlvnResult Initialize(                      VkDevice& device, 
+                                                VkCommandPoolCreateFlagBits cmdPoolFlags,
+                                                uint32_t queueFamilyIndex);
+    SlvnResult Deinitialize(VkDevice& device);
+    SlvnResult Reset(                           VkDevice& device,
+                                                VkCommandPoolResetFlags flags);
+
+private:
+    SlvnResult create(                          VkDevice& device, 
+                                                VkCommandPoolCreateFlagBits cmdPoolFlags,
+                                                uint32_t queueFamilyIndex);
+
+public:
+    VkCommandPool mVkCmdPool;
+
+private:
+    SlvnState mState;
+};
 
 } // slvn_tech
+
+#endif // SLVNCOMMANDPOOL_H

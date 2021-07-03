@@ -49,6 +49,9 @@ public:
     SlvnResult GetDeviceProperties();
     SlvnResult GetDeviceQueueInfo();
     SlvnResult CreateLogicalDevice();
+    
+    SlvnDevice* GetPrimaryDevice();
+public:
 
     std::vector<SlvnDevice*> mDevices;
 

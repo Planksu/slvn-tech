@@ -32,7 +32,12 @@
 namespace slvn_tech
 {
 
-SlvnDevice::SlvnDevice() : mPhysicalDevice(), mPhyProperties(), mLogicalDevice(), mPrimaryDevice(false), mState(SlvnState::cNotInitialized)
+SlvnDevice::SlvnDevice() : mPhysicalDevice(), 
+                           mPhyProperties(), 
+                           mLogicalDevice(), 
+                           mPrimaryDevice(false), 
+                           mState(SlvnState::cNotInitialized),
+                           mQueueFamilyIndex(255)
 {
     SLVN_PRINT("Constructing SlvnDevice object");
 
@@ -41,8 +46,8 @@ SlvnDevice::SlvnDevice() : mPhysicalDevice(), mPhyProperties(), mLogicalDevice()
 
 SlvnDevice::~SlvnDevice()
 {
-    if(mState != SlvnState::cDeinitialized)
-        SLVN_PRINT("\n\nERROR: destructor was invoked even though Deinitialize() was not called! Vulkan error state!\n\n");
+    if (mState != SlvnState::cDeinitialized && mState != SlvnState::cNotInitialized)
+        SLVN_PRINT("\n\n ERROR; destructor called even though Deinitialize() not called! Memory handling error!");
 }
 
 SlvnResult SlvnDevice::Deinitialize()
@@ -82,7 +87,7 @@ SlvnResult SlvnDevice::CreateLogicalDevice()
 {
     SLVN_PRINT("ENTER");
 
-    uint8_t queueFamilyIndex = findViableQueueFamilyIndex();
+    uint8_t queueFamilyIndex = GetViableQueueFamilyIndex();
     VkDeviceQueueCreateInfo queueInfo = {};
     uint32_t queueCount = mQueueFamilyProperties[queueFamilyIndex].queueCount;
     queueInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
@@ -133,9 +138,12 @@ SlvnResult SlvnDevice::checkQueueFamilyProperties()
     return SlvnResult::cOk;
 }
 
-uint8_t SlvnDevice::findViableQueueFamilyIndex()
+uint8_t SlvnDevice::GetViableQueueFamilyIndex()
 {
     SLVN_PRINT("ENTER");
+
+    if (mQueueFamilyIndex != 255)
+        return mQueueFamilyIndex;
 
     for (int i = 0; i < mQueueFamilyProperties.size(); i++)
     {
@@ -154,11 +162,22 @@ uint8_t SlvnDevice::findViableQueueFamilyIndex()
             SLVN_PRINT("WARNING: Possible error situation; attempting to set this device as primary while it already was primary device!");
         mPrimaryDevice = true;
 
+        mQueueFamilyIndex = i;
         return i;
     }
 
     SLVN_PRINT("EXIT");
     return -1;
+}
+
+uint16_t SlvnDevice::GetViableQueueCount()
+{
+    SLVN_PRINT("ENTER");
+
+    uint8_t queueFamilyIndex = GetViableQueueFamilyIndex();
+    return mQueueFamilyProperties[queueFamilyIndex].queueCount;
+
+    SLVN_PRINT("EXIT");
 }
 
 } // slvn_tech

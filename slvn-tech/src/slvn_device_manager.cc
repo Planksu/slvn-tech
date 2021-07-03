@@ -42,8 +42,8 @@ SlvnDeviceManager::SlvnDeviceManager() : mState(SlvnState::cNotInitialized)
 
 SlvnDeviceManager::~SlvnDeviceManager()
 {
-    if (mState != SlvnState::cDeinitialized)
-        SLVN_PRINT("\n\nERROR: destructor was invoked even though Deinitialize() was not called! Vulkan error state!\n\n");
+    if (mState != SlvnState::cDeinitialized && mState != SlvnState::cNotInitialized)
+        SLVN_PRINT("\n\n ERROR; destructor called even though Deinitialize() not called! Memory handling error!");
 }
 
 SlvnResult SlvnDeviceManager::Initialize(VkInstance& instance)
@@ -128,6 +128,19 @@ SlvnResult SlvnDeviceManager::CreateLogicalDevice()
 
     SLVN_PRINT("EXIT");
     return SlvnResult::cOk;
+}
+
+SlvnDevice* SlvnDeviceManager::GetPrimaryDevice()
+{
+    for (auto& device : mDevices)
+    {
+        if (device->mPrimaryDevice)
+            return device;
+    }
+
+    // Assert this always for now.
+    // It is a serious fault situation if there are no primary devices in the system.
+    assert(false);
 }
 
 } // slvn_tech

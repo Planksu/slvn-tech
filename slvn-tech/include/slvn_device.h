@@ -31,7 +31,6 @@
 
 #include <vulkan/vulkan.h>
 #include <core.h>
-#include <slvn_queue.h>
 
 namespace slvn_tech
 {
@@ -45,20 +44,21 @@ public:
     SlvnResult Deinitialize();
     SlvnResult GetQueueFamilyProperties();
     SlvnResult CreateLogicalDevice();
+    uint8_t GetViableQueueFamilyIndex();
+    uint16_t GetViableQueueCount();
 
 private:
     SlvnResult checkQueueFamilyProperties();
-    uint8_t findViableQueueFamilyIndex();
-   
+
 public:
     VkPhysicalDevice mPhysicalDevice;
     VkPhysicalDeviceProperties mPhyProperties;
     VkDevice mLogicalDevice;
 
-    std::vector<SlvnQueue*> mQueues;
     std::vector<VkQueueFamilyProperties> mQueueFamilyProperties;
 
     bool mPrimaryDevice;
+    uint8_t mQueueFamilyIndex;
 
 private:
     SlvnState mState;
