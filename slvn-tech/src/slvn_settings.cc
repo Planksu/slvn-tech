@@ -24,36 +24,37 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef SLVNRENDERENGINE_H
-#define SLVNRENDERENGINE_H
-
-#include <vulkan/vulkan.h>
-
-#include <abstract/slvn_abstract_engine.h>
-#include <slvn_instance.h>
-#include <core.h>
+#include <slvn_settings.h>
 
 namespace slvn_tech
 {
 
-class SlvnRenderEngine : public SlvnAbstractEngine
+SlvnSettings* SlvnSettings::mInstance = nullptr;
+
+SlvnSettings::SlvnSettings() : mWindowMode(SlvnWindowMode::cFullscreen)
 {
-public:
-    // TODO; explicit for now since only one parameter, change later
-    explicit SlvnRenderEngine(int identif);
-    ~SlvnRenderEngine();
+    mWantedLayerAmount = 1;
+    mWantedInstanceExtensionAmount = 2;
+    mWantedLayers.push_back(std::string("VK_LAYER_KHRONOS_validation"));
+    mWantedInstanceExtensions.push_back(std::string("VK_KHR_display"));
+    mWantedInstanceExtensions.push_back(std::string("VK_KHR_surface"));
+}
 
-    SlvnResult Initialize() override;
-    SlvnResult Deinitialize() override;
+SlvnSettings::~SlvnSettings()
+{
+    if (mInstance == nullptr) return;
 
-    inline int GetIdentifier() { return mIdentifier; }
+    delete mInstance;
+}
 
-public:
-    SlvnInstance mInstance;
-    int mIdentifier;
+SlvnSettings* SlvnSettings::GetInstance()
+{
+    if (mInstance == nullptr)
+    {
+        mInstance = new SlvnSettings();
+    }
 
-};
+    return mInstance;
+}
 
 } // slvn_tech
-
-#endif // SLVNRENDERENGINE_H

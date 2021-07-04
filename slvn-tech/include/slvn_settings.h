@@ -24,36 +24,40 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef SLVNRENDERENGINE_H
-#define SLVNRENDERENGINE_H
+#ifndef SLVNSETTINGS_H
+#define SLVNSETTINGS_H
 
-#include <vulkan/vulkan.h>
-
-#include <abstract/slvn_abstract_engine.h>
-#include <slvn_instance.h>
-#include <core.h>
+#include <vector>
+#include <string>
 
 namespace slvn_tech
 {
 
-class SlvnRenderEngine : public SlvnAbstractEngine
+enum class SlvnWindowMode
+{
+    cWindowed = 0,
+    cFullscreen // Default
+};
+
+class SlvnSettings
 {
 public:
-    // TODO; explicit for now since only one parameter, change later
-    explicit SlvnRenderEngine(int identif);
-    ~SlvnRenderEngine();
+    static SlvnSettings* GetInstance();
 
-    SlvnResult Initialize() override;
-    SlvnResult Deinitialize() override;
+    SlvnWindowMode mWindowMode;
+    
+    std::vector<std::string> mWantedLayers;
+    std::vector<std::string> mWantedInstanceExtensions;
+    uint8_t mWantedLayerAmount;
+    uint8_t mWantedInstanceExtensionAmount;
 
-    inline int GetIdentifier() { return mIdentifier; }
-
-public:
-    SlvnInstance mInstance;
-    int mIdentifier;
-
+private:
+    SlvnSettings();
+    ~SlvnSettings();
+    static SlvnSettings* mInstance;
 };
 
 } // slvn_tech
 
-#endif // SLVNRENDERENGINE_H
+
+#endif // SLVNSETTINGS_H

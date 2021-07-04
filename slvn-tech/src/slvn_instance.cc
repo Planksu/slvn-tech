@@ -28,6 +28,7 @@
 
 #include <vulkan/vulkan.h>
 
+#include <slvn_settings.h>
 #include <slvn_instance.h>
 #include <slvn_debug.h>
 #include <core.h>
@@ -78,23 +79,27 @@ SlvnResult SlvnInstance::Initialize()
     VkApplicationInfo appInfo = {};
     char** enabledLayers;
     uint32_t enabledLayerCount = 0;
+    char** enabledExtensions;
+    uint32_t enabledExtensionCount = 0;
 
-    enumerateLayers();
-    fillInstanceInfo(instanceInfo, appInfo, enabledLayers, enabledLayerCount);
+    enumerateLayers(enabledLayers, enabledLayerCount);
+    enumerateExtensions(enabledExtensions, enabledExtensionCount);
+    fillInstanceInfo(instanceInfo, appInfo, enabledLayers, enabledLayerCount, enabledExtensions, enabledExtensionCount);
 
     VkResult result = vkCreateInstance(&instanceInfo, nullptr, &mVkInstance);
     assert(result == VK_SUCCESS);
 
-
-    
-    if (mValidationEnabled)
+    for (int i = 0; i < enabledLayerCount; i++)
     {
-        for (int i = 0; i < enabledLayerCount; i++)
-        {
-            delete[] enabledLayers[i];
-        }
-        delete[] enabledLayers;
+        delete[] enabledLayers[i];
     }
+    delete[] enabledLayers;
+
+    for (int i = 0; i < enabledExtensionCount; i++)
+    {
+        delete[] enabledExtensions[i];
+    }
+    delete[] enabledExtensions;
 
     if (mState == SlvnState::cNotInitialized)
         mState = SlvnState::cInitialized;
@@ -116,41 +121,26 @@ SlvnResult SlvnInstance::Deinitialize()
     return SlvnResult::cOk;
 }
 
-SlvnResult SlvnInstance::fillInstanceInfo(VkInstanceCreateInfo& instanceInfo, VkApplicationInfo& appInfo, char**& enabledLayers, uint32_t& enabledLayerCount)
+SlvnResult SlvnInstance::fillInstanceInfo(  VkInstanceCreateInfo& instanceInfo,
+                                            VkApplicationInfo& appInfo,
+                                            char**& enabledLayers,
+                                            uint32_t& enabledLayerCount,
+                                            char**& enabledExtensions,
+                                            uint32_t& enabledExtensionCount)
 {
     SLVN_PRINT("ENTER");
 
     SlvnResult result = fillApplicationInfo(appInfo);
     assert(result == SlvnResult::cOk);
 
-    enabledLayerCount = 0;
-
-    if (mValidationEnabled)
-    {
-        SLVN_PRINT("Validation is enabled");
-        enabledLayerCount = 1;
-        enabledLayers = new char*[enabledLayerCount];
-        for (int i = 0; i < enabledLayerCount; i++)
-        {
-            enabledLayers[i] = new char[cValidationLayerName.size() + 1];
-            std::strcpy(enabledLayers[i], cValidationLayerName.c_str());
-        }
-        instanceInfo.enabledLayerCount = enabledLayerCount;
-        instanceInfo.ppEnabledLayerNames = enabledLayers;
-    }
-    else
-    {
-        instanceInfo.enabledLayerCount = 0;
-        instanceInfo.ppEnabledLayerNames = nullptr;
-    }
-
-    SLVN_PRINT("Assigning member variables of VkInstanceCreateInfo");
+    instanceInfo.enabledLayerCount = enabledLayerCount;
+    instanceInfo.ppEnabledLayerNames = enabledLayers;
     instanceInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
     instanceInfo.pNext = nullptr;
     instanceInfo.flags = 0;
     instanceInfo.pApplicationInfo = &appInfo;
-    instanceInfo.enabledExtensionCount = 0;
-    instanceInfo.ppEnabledExtensionNames = nullptr;
+    instanceInfo.enabledExtensionCount = enabledExtensionCount;
+    instanceInfo.ppEnabledExtensionNames = enabledExtensions;
 
     SLVN_PRINT("EXIT");
     return SlvnResult::cOk;
@@ -174,9 +164,11 @@ SlvnResult SlvnInstance::fillApplicationInfo(VkApplicationInfo& appInfo)
 }
 
 
-SlvnResult SlvnInstance::enumerateLayers()
+SlvnResult SlvnInstance::enumerateLayers(char**& enabledLayers, uint32_t& enabledLayerCount)
 {
     SLVN_PRINT("ENTER");
+    SlvnSettings* settings = SlvnSettings::GetInstance();
+
 #ifdef SLVN_DEBUG_LAYER
     SLVN_PRINT("Enabling VK_LAYER_KHRONOS_validation layer");
     std::vector<VkLayerProperties> properties;
@@ -191,17 +183,73 @@ SlvnResult SlvnInstance::enumerateLayers()
     properties.resize(propertyCount);
     result = vkEnumerateInstanceLayerProperties(&propertyCount, properties.data());
 
+    enabledLayerCount = 0;
     for (auto& property : properties)
     {
         SLVN_PRINT(property.layerName);
         SLVN_PRINT(property.description);
 
-        if (property.layerName == cValidationLayerName)
-            mValidationEnabled = true;
+         if (std::find(settings->mWantedLayers.begin(),
+            settings->mWantedLayers.end(),
+            property.layerName) != settings->mWantedLayers.end())
+        {
+            SLVN_PRINT("Wanted instance layer supported, adding to to-enable list");
+            enabledLayerCount++;
+        }
     }
+
+    
+    enabledLayers = new char*[enabledLayerCount];
+    for (int i = 0; i < enabledLayerCount; i++) 
+    {
+        enabledLayers[i] = new char[settings->mWantedLayers[i].size() + 1];
+        std::strcpy(enabledLayers[i], settings->mWantedLayers[i].c_str());
+    }
+
     return SlvnResult::cOk;
 #endif
     SLVN_PRINT("EXIT");
+    return SlvnResult::cOk;
+}
+
+SlvnResult SlvnInstance::enumerateExtensions(char**& enabledExtensions, uint32_t& enabledExtensionCount)
+{
+    SlvnSettings* settings = SlvnSettings::GetInstance();
+    std::vector<VkExtensionProperties> properties;
+    uint32_t extensionCount = 0;
+    VkResult result = vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, nullptr);
+    if (result != VK_SUCCESS)
+    {
+        SLVN_PRINT("Could NOT query extensions!");
+    }
+
+    SLVN_PRINT("extensionCount is: " << extensionCount);
+
+    if (extensionCount <= 0)
+        return SlvnResult::cUnexpectedError;
+
+    properties.resize(extensionCount);
+    result = vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, properties.data());
+
+    enabledExtensionCount = 0;
+    for (auto& extension : properties)
+    {
+        if (std::find(settings->mWantedInstanceExtensions.begin(),
+            settings->mWantedInstanceExtensions.end(),
+            extension.extensionName) != settings->mWantedInstanceExtensions.end())
+        {
+            SLVN_PRINT("Wanted instance extension supported, adding to to-enable list");
+            enabledExtensionCount++;
+        }
+    }
+
+    enabledExtensions = new char*[enabledExtensionCount];
+    for (int i = 0; i < enabledExtensionCount; i++)
+    {
+        enabledExtensions[i] = new char[settings->mWantedInstanceExtensions[i].size() + 1];
+        std::strcpy(enabledExtensions[i], settings->mWantedInstanceExtensions[i].c_str());
+    }
+    
     return SlvnResult::cOk;
 }
 

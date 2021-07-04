@@ -47,8 +47,7 @@ SlvnRenderEngine::~SlvnRenderEngine()
 
 SlvnResult SlvnRenderEngine::Initialize()
 {
-    SlvnResult result = enumerateExtensions();
-    return result;
+    return SlvnResult::cOk;
 }
 
 SlvnResult SlvnRenderEngine::Deinitialize()
@@ -75,27 +74,5 @@ SlvnResult SlvnRenderEngine::Deinitialize()
 
     return SlvnResult::cOk;
 }
-
-SlvnResult SlvnRenderEngine::enumerateExtensions()
-{
-    uint32_t extensionCount = 0;
-    VkResult result = vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, nullptr);
-    if (result != VK_SUCCESS)
-    {
-        SLVN_PRINT("Could NOT query extensions!");
-    }
-
-    SLVN_PRINT("extensionCount is: " << extensionCount);
-
-    if (extensionCount > 0)
-    {
-        return SlvnResult::cOk;
-    }
-
-    return SlvnResult::cUnexpectedError;
-}
-
-
-
 
 } // slvn_tech

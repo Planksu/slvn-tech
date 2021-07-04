@@ -60,12 +60,17 @@ public:
 private:
     bool mValidationEnabled;
     SlvnState mState;
-    const std::string cValidationLayerName = "VK_LAYER_KHRONOS_validation";
 
 private:
-    SlvnResult fillInstanceInfo(VkInstanceCreateInfo& instanceInfo, VkApplicationInfo& appInfo, char**& enabledLayers, uint32_t& enabledLayerCount);
+    SlvnResult fillInstanceInfo(VkInstanceCreateInfo& instanceInfo,
+                                VkApplicationInfo& appInfo,
+                                char**& enabledLayers,
+                                uint32_t& enabledLayerCount,
+                                char**& enabledExtensions,
+                                uint32_t& enabledExtensionCount);
     SlvnResult fillApplicationInfo(VkApplicationInfo& appInfo);
-    SlvnResult enumerateLayers();
+    SlvnResult enumerateLayers(char**& enabledLayers, uint32_t& enabledLayerCount);
+    SlvnResult enumerateExtensions(char**& enabledExtensions, uint32_t& enabledExtensionCount);
 };
 
 } // slvn_tech
