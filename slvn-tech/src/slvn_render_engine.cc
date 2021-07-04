@@ -60,7 +60,7 @@ SlvnResult SlvnRenderEngine::Deinitialize()
     for (auto& worker : mInstance.mCmdManager.mWorkers)
     {
         VkDevice device = mInstance.mDeviceManager.GetPrimaryDevice()->mLogicalDevice;
-        worker.Deinitialize();
+        worker->Deinitialize();
     }
     mInstance.mCmdManager.Deinitialize();
 

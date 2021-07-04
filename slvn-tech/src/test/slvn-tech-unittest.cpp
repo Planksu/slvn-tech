@@ -39,22 +39,6 @@ TEST(SLVN_TECH_UT_GRAPHICS_RENDER_ENGINE, 004)
 	EXPECT_EQ(static_cast<int>(pEngine->Initialize()), static_cast<int>(SlvnResult::cOk));
 	delete pEngine;
 }
-TEST(SLVN_TECH_UT_GRAPHICS_DEVICE, 001)
-{
-	slvn_tech::SlvnDevice device = slvn_tech::SlvnDevice();
-	VkPhysicalDevice vkDevice = {};
-	device.mPhysicalDevice = vkDevice;
-	EXPECT_EQ(device.mPhysicalDevice, vkDevice);
-}
-TEST(SLVN_TECH_UT_GRAPHICS_DEVICE, 002)
-{
-	slvn_tech::SlvnDevice device = slvn_tech::SlvnDevice();
-	VkPhysicalDevice vkDevice = {};
-	device.mPhysicalDevice = vkDevice;
-	VkPhysicalDeviceProperties vkProperties = {};
-	device.mPhyProperties = vkProperties;
-	EXPECT_EQ(device.mPhysicalDevice, vkDevice);
-}
 TEST(SLVN_TECH_UT_GRAPHICS_DEVICE, 003)
 {
 	//slvn_tech::SlvnInstance instance = slvn_tech::SlvnInstance();

@@ -24,6 +24,8 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+#include <thread>
+
 #include <slvn_command_manager.h>
 #include <slvn_debug.h>
 
@@ -50,10 +52,25 @@ SlvnResult SlvnCommandManager::Initialize(VkInstance& instance)
     mWorkers.resize(SLVN_DEFAULT_WORKER_THREADS);
     for (auto& worker : mWorkers)
     {
-        worker = SlvnCommandWorker();
+        worker = new SlvnCommandWorker();
     }
 
     mState = SlvnState::cInitialized;
+    SLVN_PRINT("EXIT");
+    return SlvnResult::cOk;
+}
+
+
+SlvnResult SlvnCommandManager::Deinitialize()
+{
+    SLVN_PRINT("ENTER");
+    
+    for (auto& worker : mWorkers)
+    {
+        delete worker;
+    }
+
+    mState = SlvnState::cDeinitialized;
     SLVN_PRINT("EXIT");
     return SlvnResult::cOk;
 }
@@ -68,10 +85,26 @@ SlvnResult SlvnCommandManager::SetWorkerCmdPools(VkDevice& device, VkCommandPool
     {
         SlvnCommandPool* cmdPool = new SlvnCommandPool();
         cmdPool->Initialize(device, cmdPoolFlags, queueFamilyIndex);
-        worker.SetCmdPool(cmdPool);
+        worker->SetCmdPool(cmdPool);
+    }
 
-        // Initialize after cmdPool available.
-        worker.Initialize();
+    SLVN_PRINT("EXIT");
+    return SlvnResult::cOk;
+}
+
+SlvnResult SlvnCommandManager::StartWorkerThreads()
+{
+    SLVN_PRINT("ENTER");
+
+    mThreads.resize(mWorkers.size());
+
+    for (int i = 0; i < mWorkers.size(); i++)
+    {
+        mThreads[i] = std::thread(&SlvnCommandWorker::Initialize, mWorkers[i]);
+    }
+    for (auto& thread : mThreads)
+    {
+        thread.join();
     }
 
     SLVN_PRINT("EXIT");
@@ -84,7 +117,7 @@ SlvnResult SlvnCommandManager::SetWorkerDeviceRefs(VkDevice& device)
 
     for (auto& worker : mWorkers)
     {
-        worker.SetDeviceRef(device);
+        worker->SetDeviceRef(device);
     }
 
     SLVN_PRINT("EXIT");
@@ -99,20 +132,12 @@ SlvnResult SlvnCommandManager::SetWorkerQueues(VkDevice& device, uint32_t queueF
     {
         VkQueue queue = {};
         vkGetDeviceQueue(device, queueFamilyIndex, i, &queue);
-        mWorkers[i].SetQueue(&queue);
+        mWorkers[i]->SetQueue(&queue);
     }
 
     SLVN_PRINT("EXIT");
     return SlvnResult::cOk;
 }
 
-SlvnResult SlvnCommandManager::Deinitialize()
-{
-    SLVN_PRINT("ENTER");
-
-    mState = SlvnState::cDeinitialized;
-    SLVN_PRINT("EXIT");
-    return SlvnResult::cOk;
-}
 
 } // slvn_tech

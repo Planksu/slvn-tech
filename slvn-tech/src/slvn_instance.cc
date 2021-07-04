@@ -55,6 +55,7 @@ SlvnInstance::SlvnInstance() : mVkInstance(VK_NULL_HANDLE), mDeviceManager(), mV
     mCmdManager.SetWorkerQueues(mDeviceManager.GetPrimaryDevice()->mLogicalDevice,
         mDeviceManager.GetPrimaryDevice()->GetViableQueueFamilyIndex(),
         mDeviceManager.GetPrimaryDevice()->GetViableQueueCount());
+    mCmdManager.StartWorkerThreads();
 
 }
 

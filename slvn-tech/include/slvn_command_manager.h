@@ -28,6 +28,7 @@
 #define SLVNCOMMANDMANAGER_H
 
 #include <vector>
+#include <thread>
 
 #include <abstract/slvn_abstract_manager.h>
 #include <slvn_command_worker.h>
@@ -50,9 +51,11 @@ public:
     SlvnResult SetWorkerCmdPools(VkDevice& device, VkCommandPoolCreateFlagBits cmdPoolFlags, uint32_t queueFamilyIndex);
     SlvnResult SetWorkerDeviceRefs(VkDevice& device);
     SlvnResult SetWorkerQueues(VkDevice& device, uint32_t queueFamilyIndex, uint32_t queueCount);
+    SlvnResult StartWorkerThreads();
 
 public:
-    std::vector<SlvnCommandWorker> mWorkers;
+    std::vector<SlvnCommandWorker*> mWorkers;
+    std::vector<std::thread> mThreads;
 
 private:
     SlvnState mState;
