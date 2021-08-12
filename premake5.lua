@@ -37,18 +37,18 @@ workspace "slvn-tech"
 		systemversion "10.0.18362.0"
 		defines {
 			"_CRT_SECURE_NO_WARNINGS",
-			"WIN32_LEAN_AND_MEAN"
 		}
 
 project "slvn-tech"
 	targetname "slvn-tech"
-	kind "StaticLib"
+	kind "ConsoleApp"
 	language "C++"
 	files { "./slvn-tech/include/*.h",
+			"./slvn-tech/include/*.inl",
 			"./slvn-tech/include/abstract/*.h",
 			"./slvn-tech/src/*.cc"}
 
-	defines {}
+	defines { "VK_USE_PLATFORM_WIN32_KHR" }
 	links { "vulkan-1.lib", "glfw3.lib" }
 	configuration "x64"
 		libdirs {}
@@ -58,17 +58,17 @@ project "slvn-tech"
 		
 	configuration "not macosx"
 		includedirs {	"./slvn-tech/include",
-						"./slvn-tech/include/*",
 						"$(VULKAN_SDK)/include",
 						"./slvn-tech/VULKAN_SDK/include",
 						"./slvn-tech/dependencies/glfw/include",
-						"./slvn-tech/dependencies/glm/glm",
-						"./VULKAN_SDK/include",}
+						"./slvn-tech/dependencies/glm/",
+						"./slvn-tech/dependencies/OBJ-Loader/include",
+						"./VULKAN_SDK/include"}
 		libdirs { 	"$(VULKAN_SDK)/lib",
 					"./slvn-tech/VULKAN_SDK/lib",
 					"./VULKAN_SDK/lib",
 					"./src/Debug",
-					"../slvn-tech-local-dependencies/glfw/Debug"}
+					"../slvn-tech-local-dependencies/glfw/precompiled/"}
 		cppdialect "C++17"
 	configuration "macosx"
 
@@ -104,11 +104,12 @@ project "slvn-tech-unittest"
 		
 	configuration "not macosx"
 		includedirs {	"./slvn-tech/include",
-						"./slvn-tech/include/*",
+						"./slvn-tech/include/test",
 						"$(VULKAN_SDK)/include",
 						"./slvn-tech/VULKAN_SDK/include",
 						"./slvn-tech/dependencies/glfw/include",
-						"./slvn-tech/dependencies/glm/glm",
+						"./slvn-tech/dependencies/glm/",
+						"./slvn-tech/dependencies/OBJ-Loader/include",
 						"./VULKAN_SDK/include",
 						"./googletest/googletest/include",
 						"./googletest/googlemock/include"}
@@ -120,7 +121,7 @@ project "slvn-tech-unittest"
 					"./builds/Debug/x64", 
 					"./src/Debug",
 					"./googletest/lib/Debug",
-					"../slvn-tech-local-dependencies/glfw/Debug"}
+					"../slvn-tech-local-dependencies/glfw/precompiled"}
 		cppdialect "C++17"
 	configuration "macosx"
 

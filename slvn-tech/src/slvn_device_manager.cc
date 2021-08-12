@@ -72,12 +72,11 @@ SlvnResult SlvnDeviceManager::Deinitialize()
     if(mState == SlvnState::cInitialized)
         mState = SlvnState::cDeinitialized;
     return SlvnResult::cOk;
-
 }
 
 SlvnResult SlvnDeviceManager::EnumeratePhysicalDevices(VkInstance& instance)
 {
-    SLVN_PRINT("Enumerating physical devices");
+    SLVN_PRINT("ENTER");
     // When pPhysicalDevice is nullptr, physicalDeviceCount is used as output.
     // Vulkan will return the amount of physical devices in the system.
     uint32_t physicalDeviceCount = 0;
@@ -93,6 +92,7 @@ SlvnResult SlvnDeviceManager::EnumeratePhysicalDevices(VkInstance& instance)
     }
 
     vkEnumeratePhysicalDevices(instance, &physicalDeviceCount, &mDevices[0]->mPhysicalDevice);
+    SLVN_PRINT("EXIT");
     return SlvnResult::cOk;
 }
 
@@ -122,9 +122,7 @@ SlvnResult SlvnDeviceManager::CreateLogicalDevice()
 {
     SLVN_PRINT("ENTER");
 
-    // Assume for now that device at index 0 is the correct one.
-    // Correct this system once more knowledge about subject is acquired.
-    mDevices[0]->CreateLogicalDevice();
+    GetPrimaryDevice()->CreateLogicalDevice();
 
     SLVN_PRINT("EXIT");
     return SlvnResult::cOk;
@@ -141,6 +139,9 @@ SlvnDevice* SlvnDeviceManager::GetPrimaryDevice()
     // Assert this always for now.
     // It is a serious fault situation if there are no primary devices in the system.
     assert(false);
+
+    // Return nullptr to avoid warning for not all paths returning a value.
+    return nullptr;
 }
 
 } // slvn_tech

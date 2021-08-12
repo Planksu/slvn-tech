@@ -24,65 +24,54 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#include <thread>
+#ifndef SLVNDISPLAY_H
+#define SLVNDISPLAY_H
 
-#include <slvn_settings.h>
+#include <vector>
 
 #include <vulkan/vulkan.h>
+
+#include <core.h>
 #include <GLFW/glfw3.h>
 
 namespace slvn_tech
 {
 
-SlvnSettings* SlvnSettings::mInstance = nullptr;
-
-SlvnSettings::SlvnSettings() : mWindowMode(SlvnWindowMode::cFullscreen)
+class SlvnDisplay
 {
-    // All variables in constructor are safe to edit
+public:
+    SlvnDisplay();
+    ~SlvnDisplay();
 
-    mWantedLayers.push_back(std::string("VK_LAYER_KHRONOS_validation"));
-    mWantedLayers.push_back(std::string("VK_LAYER_RENDERDOC_Capture"));
-    mWantedDeviceExtensions.push_back(std::string("VK_KHR_swapchain"));
+    SlvnResult Initialize(VkInstance& instance, VkPhysicalDevice& device, VkDevice& logDevice, uint32_t queueFamilyIndex);
+    SlvnResult Deinitialize(VkInstance& instance, VkDevice& device);
 
-	uint32_t glfwExtensionCount = 0;
-	const char** glfwExtensions;
-	glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
+    SlvnResult ReinitializeSwapchain();
 
-	std::vector<const char*> extensions(glfwExtensions, glfwExtensions + glfwExtensionCount);
-    extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
+    std::vector<VkImageView> GetSwapchainImages();
+    VkExtent2D GetExtent() { return mExtent; }
+    VkRect2D GetRect() { return { 0, 0, mExtent.width, mExtent.height }; }
 
-    for (auto& extension : extensions)
-    {
-        mWantedInstanceExtensions.push_back(extension);
-    }    
-    
-    mWantedLayerAmount = mWantedLayers.size();
-    mWantedInstanceExtensionAmount = mWantedInstanceExtensions.size();
-    mWantedDeviceExtensionAmount = mWantedDeviceExtensions.size();
+private:
 
-    mCameraFov = 90.f;
+public:
+    VkExtent2D mExtent;
+    GLFWwindow* mWindow;
+    VkSwapchainKHR mSwapchain;
 
-    mWindowHeight = 1080;
-    mWindowWidth = 1920;
+    bool mVsyncEnabled;
 
-    mMaxThreads = std::thread::hardware_concurrency();
-}
-
-SlvnSettings::~SlvnSettings()
-{
-    if (mInstance == nullptr) return;
-
-    delete mInstance;
-}
-
-SlvnSettings* SlvnSettings::GetInstance()
-{
-    if (mInstance == nullptr)
-    {
-        mInstance = new SlvnSettings();
-    }
-
-    return mInstance;
-}
+private:
+    VkSurfaceKHR mSurface;
+    VkFormat mFormat;
+    VkColorSpaceKHR mColorspace;
+    VkPresentModeKHR mPresentMode;
+    SlvnState mState;
+    std::vector<VkImageView> mViews;
+    // Pointer referencing the device that was used to create this object.
+    VkDevice* mDevice;
+};
 
 } // slvn_tech
+
+#endif // SLVNDISPLAY_H

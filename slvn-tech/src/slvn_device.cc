@@ -26,6 +26,7 @@
 
 #include <assert.h>
 
+#include <slvn_settings.h>
 #include <slvn_device.h>
 #include <slvn_debug.h>
 
@@ -77,7 +78,7 @@ SlvnResult SlvnDevice::GetQueueFamilyProperties()
 
     mQueueFamilyProperties.resize(queueFamilyPropertyCount);
     vkGetPhysicalDeviceQueueFamilyProperties(mPhysicalDevice, &queueFamilyPropertyCount, mQueueFamilyProperties.data());
-    checkQueueFamilyProperties();
+    GetViableQueueFamilyIndex();
 
     SLVN_PRINT("EXIT");
     return SlvnResult::cOk;
@@ -86,6 +87,10 @@ SlvnResult SlvnDevice::GetQueueFamilyProperties()
 SlvnResult SlvnDevice::CreateLogicalDevice()
 {
     SLVN_PRINT("ENTER");
+
+    char** enabledExtensions;
+    uint32_t enabledExtensionCount;
+    queryDeviceExtensions(enabledExtensions, enabledExtensionCount);
 
     uint8_t queueFamilyIndex = GetViableQueueFamilyIndex();
     VkDeviceQueueCreateInfo queueInfo = {};
@@ -108,9 +113,9 @@ SlvnResult SlvnDevice::CreateLogicalDevice()
     info.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
     info.pNext = nullptr;
     info.flags = 0;
-    info.enabledExtensionCount = 0;
+    info.enabledExtensionCount = enabledExtensionCount;
     info.enabledLayerCount = 0; 
-    info.ppEnabledExtensionNames = nullptr;
+    info.ppEnabledExtensionNames = enabledExtensions;
     info.ppEnabledLayerNames = nullptr;
     info.pQueueCreateInfos = &queueInfo;
     info.pEnabledFeatures = &features;
@@ -118,9 +123,15 @@ SlvnResult SlvnDevice::CreateLogicalDevice()
 
     VkResult result = vkCreateDevice(mPhysicalDevice, &info, nullptr, &mLogicalDevice);
     assert(result == VK_SUCCESS);
-    return SlvnResult::cOk;
+
+    for (uint32_t i = 0; i < enabledExtensionCount; i++)
+    {
+        delete[] enabledExtensions[i];
+    }
+    delete[] enabledExtensions;
 
     SLVN_PRINT("EXIT");
+    return SlvnResult::cOk;
 }
 
 SlvnResult SlvnDevice::checkQueueFamilyProperties()
@@ -178,6 +189,47 @@ uint16_t SlvnDevice::GetViableQueueCount()
     return mQueueFamilyProperties[queueFamilyIndex].queueCount;
 
     SLVN_PRINT("EXIT");
+}
+
+SlvnResult SlvnDevice::queryDeviceExtensions(char**& enabledExtensions, uint32_t& enabledExtensionCount)
+{
+    SLVN_PRINT("ENTER");
+    SlvnSettings* settings = SlvnSettings::GetInstance();
+
+    uint32_t propertyCount = 0;
+    std::vector<VkExtensionProperties> extensionProperties;
+    VkResult result = vkEnumerateDeviceExtensionProperties(mPhysicalDevice, nullptr, &propertyCount, nullptr);
+
+    if (propertyCount <= 0)
+        return SlvnResult::cUnexpectedError;
+
+    extensionProperties.resize(propertyCount);
+    result = vkEnumerateDeviceExtensionProperties(mPhysicalDevice, nullptr, &propertyCount, extensionProperties.data());
+
+    enabledExtensionCount = 0;
+    std::vector<ptrdiff_t> enabledExtensionIndexes;
+    for (auto& extension : extensionProperties)
+    {
+        SLVN_PRINT(extension.extensionName);
+
+        auto it = std::find(settings->mWantedDeviceExtensions.begin(), settings->mWantedDeviceExtensions.end(), extension.extensionName);
+        if (it != settings->mWantedDeviceExtensions.end())
+        {
+            SLVN_PRINT("Wanted instance extension supported, adding to to-enable list");
+            enabledExtensionCount++;
+            enabledExtensionIndexes.push_back(std::distance(settings->mWantedDeviceExtensions.begin(), it));
+        }
+    }
+
+    enabledExtensions = new char*[enabledExtensionCount];
+    for (uint32_t i = 0; i < enabledExtensionCount; i++)
+    {
+        enabledExtensions[i] = new char[settings->mWantedDeviceExtensions[enabledExtensionIndexes[i]].size() + 1];
+        std::strcpy(enabledExtensions[i], settings->mWantedDeviceExtensions[enabledExtensionIndexes[i]].c_str());
+    }
+    
+    SLVN_PRINT("EXIT");
+    return SlvnResult::cOk;
 }
 
 } // slvn_tech

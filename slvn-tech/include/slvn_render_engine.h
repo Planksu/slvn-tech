@@ -31,6 +31,12 @@
 
 #include <abstract/slvn_abstract_engine.h>
 #include <slvn_instance.h>
+#include <slvn_renderpass.h>
+#include <slvn_graphics_pipeline.h>
+#include <slvn_framebuffer.h>
+#include <slvn_camera.h>
+#include <slvn_threadpool.inl>
+#include <slvn_input_manager.h>
 #include <core.h>
 
 namespace slvn_tech
@@ -48,9 +54,48 @@ public:
 
     inline int GetIdentifier() { return mIdentifier; }
 
+private:
+    SlvnResult initializeInput();
+    SlvnResult initializeSemaphores();
+    SlvnResult initializeThreading();
+    SlvnResult initializeSubmitInfo();
+    void createCommandWorkers();
+    void renderloop();
+    void threadRender(uint32_t threadIndex, uint32_t cmdBufferIndex, uint32_t vertexesSize, VkCommandBufferInheritanceInfo inheritanceInfo);
+
 public:
     SlvnInstance mInstance;
+    SlvnRenderpass mRenderpass;
+    SlvnFramebuffer mFramebuffer;
+    SlvnState mState;
+    SlvnDeviceManager mDeviceManager;
+    SlvnCommandManager mCmdManager;
+    SlvnDisplay mDisplay;
+    SlvnGraphicsPipeline mPipeline;
+    SlvnSemaphores mSemaphores;
+    SlvnMatrices mMatrices;
+    SlvnCamera mCamera;
+    SlvnThreadpool mThreadpool;
+    SlvnInputManager mInputManager;
+
+    uint32_t mActiveFramebuffer;
+    uint32_t mMaxThreads;
+    uint32_t mObjectsPerThread;
+
+    SlvnCommandWorker mPrimaryCmdWorker;
+    std::vector<SlvnCommandWorker> mSecondaryCmdWorkers;
+    std::vector<SlvnThreadData> mThreadData;
+
+
     int mIdentifier;
+    VkRect2D mArea;
+    VkBuffer mVertexBuffer;
+    VkBuffer mIndiceBuffer;
+    VkSubmitInfo mSubmitInfo;
+    VkFence mRenderFence;
+
+private:
+    VkQueue mQueue;
 
 };
 

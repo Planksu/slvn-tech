@@ -34,7 +34,7 @@
 #include <slvn_command_worker.h>
 #include <slvn_command_pool.h>
 
-#define SLVN_DEFAULT_WORKER_THREADS 16
+#define SLVN_DEFAULT_WORKER_THREADS 3
 
 namespace slvn_tech
 {
@@ -47,11 +47,6 @@ public:
 
     SlvnResult Initialize(VkInstance& instance) override;
     SlvnResult Deinitialize() override;
-
-    SlvnResult SetWorkerCmdPools(VkDevice& device, VkCommandPoolCreateFlagBits cmdPoolFlags, uint32_t queueFamilyIndex);
-    SlvnResult SetWorkerDeviceRefs(VkDevice& device);
-    SlvnResult SetWorkerQueues(VkDevice& device, uint32_t queueFamilyIndex, uint32_t queueCount);
-    SlvnResult StartWorkerThreads();
 
 public:
     std::vector<SlvnCommandWorker*> mWorkers;

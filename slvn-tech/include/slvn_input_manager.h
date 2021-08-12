@@ -24,53 +24,50 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef SLVNCOMMANDWORKER_H
-#define SLVNCOMMANDWORKER_H
+#ifndef SLVNINPUTMANAGER_H
+#define SLVNINPUTMANAGER_H
 
-#include <vector>
-#include <optional>
-
-#include <vulkan/vulkan.h>
+#include <GLFW/glfw3.h>
+#include <glm/glm.hpp>
 
 #include <core.h>
-#include <slvn_debug.h>
-#include <slvn_command_pool.h>
-#include <slvn_device.h>
+#include <slvn_camera.h>
 
 namespace slvn_tech
 {
 
-class SlvnCommandWorker
+class SlvnInputManager
 {
 public:
-    SlvnCommandWorker();
-    ~SlvnCommandWorker();
+	SlvnInputManager();
+	~SlvnInputManager();
 
-    SlvnResult Initialize(  VkDevice* device, 
-                            VkCommandPoolCreateFlagBits flags,
-                            uint32_t queueFamilyIndex,
-                            SlvnCmdBufferType type,
-                            uint32_t cmdBufferCount,
-                            std::optional<SlvnCommandPool*> cmdPool);
-    SlvnResult Deinitialize(VkDevice* device);
-    SlvnResult BeginBuffer(SlvnCmdBufferType type, VkCommandBufferInheritanceInfo* inheritanceInfo, uint32_t cmdBufferIndex);
-    SlvnResult EndBuffer(uint32_t cmdBufferIndex);
+	SlvnResult Initialize(float centerX, float centerY);
+	SlvnResult Deinitialize();
+	
+	void Update(GLFWwindow* window, SlvnCamera* camera);
+	void HandleMovement(GLFWwindow* window, SlvnCamera* camera);
+	void HandleRotation(GLFWwindow* window, SlvnCamera* camera);
+	float CalculateDelta();
 
 private:
-    SlvnResult createCommandPool(VkDevice* device, VkCommandPoolCreateFlagBits flags, uint32_t queueFamilyIndex);
-    SlvnResult allocateBuffers(VkDevice* device, SlvnCmdBufferType type, uint32_t count);
-    SlvnResult resetBuffer(VkCommandBufferResetFlags flags, uint32_t cmdBufferIndex);
 
-public:
-    std::vector<VkCommandBuffer> mCmdBuffers;
-    SlvnThreadData mThreadData;
-    VkCommandBufferInheritanceInfo mInfo;
-private:
-    SlvnState mState;
-    SlvnCommandPool* mCmdPool;
+	// Frame variables
+	float dt = 0.0f;
+	float last = 0.0f;
 
+	// Input variables
+	double lastX;
+	double lastY;
+	double yaw;
+	double pitch;
+	bool firstMouse = true;
+	const float cameraSpeed = 50.f;
+	const float sens = 0.2f;
+
+	SlvnState mState;
 };
 
 } // slvn_tech
 
-#endif // SLVNCOMMANDWORKER_H
+#endif // SLVNINPUTMANAGER_H

@@ -31,7 +31,7 @@
 namespace slvn_tech
 {
 
-SlvnCommandWorker::SlvnCommandWorker() : mState(SlvnState::cNotInitialized), mCmdPool(), mCmdBuffer()
+SlvnCommandWorker::SlvnCommandWorker() : mState(SlvnState::cNotInitialized), mCmdPool(), mCmdBuffers()
 {
     SLVN_PRINT("Constructing SlvnCommandWorker object");
 }
@@ -44,19 +44,30 @@ SlvnCommandWorker::~SlvnCommandWorker()
         SLVN_PRINT("\n\n ERROR; destructor called even though Deinitialize() not called! Memory handling error!");
 }
 
-SlvnResult SlvnCommandWorker::Initialize()
+SlvnResult SlvnCommandWorker::Initialize(   VkDevice* device,
+                                            VkCommandPoolCreateFlagBits flags,
+                                            uint32_t queueFamilyIndex,
+                                            SlvnCmdBufferType type,
+                                            uint32_t cmdBufferCount,
+                                            std::optional<SlvnCommandPool*> cmdPool)
 {
     SLVN_PRINT("ENTER");
 
-    allocateBuffer();
-    beginBuffer();
+    // When an object of type optional<T> is contextually converted to bool,
+    // the conversion returns true if the object contains a value and false if it does not contain a value. 
+    if (cmdPool)        
+        mCmdPool = *cmdPool;
+    else
+        createCommandPool(device, flags, queueFamilyIndex);
+    
+    allocateBuffers(device, type, cmdBufferCount);
 
     mState = SlvnState::cInitialized;
     SLVN_PRINT("EXIT");
     return SlvnResult::cOk;
 }
 
-SlvnResult SlvnCommandWorker::Deinitialize()
+SlvnResult SlvnCommandWorker::Deinitialize(VkDevice* device)
 {
     SLVN_PRINT("ENTER");
 
@@ -65,7 +76,7 @@ SlvnResult SlvnCommandWorker::Deinitialize()
     // is destroyed.
 
     if (mCmdPool != nullptr)
-        mCmdPool->Deinitialize(mLogicalDeviceRef);
+        mCmdPool->Deinitialize(*device);
         delete mCmdPool;
 
     mState = SlvnState::cDeinitialized;
@@ -73,61 +84,83 @@ SlvnResult SlvnCommandWorker::Deinitialize()
     return SlvnResult::cOk;
 }
 
-SlvnResult SlvnCommandWorker::allocateBuffer()
+SlvnResult SlvnCommandWorker::createCommandPool(VkDevice* device, VkCommandPoolCreateFlagBits flags, uint32_t queueFamilyIndex)
+{
+    mCmdPool = new SlvnCommandPool();
+    SlvnResult result = mCmdPool->Initialize(*device, flags, queueFamilyIndex);
+    return result;
+}
+
+SlvnResult SlvnCommandWorker::allocateBuffers(VkDevice* device, SlvnCmdBufferType type, uint32_t count)
 {
     SLVN_PRINT("ENTER");
 
-    VkCommandBufferAllocateInfo info = {};
-    info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-    info.pNext = nullptr;
-    info.commandPool = mCmdPool->mVkCmdPool;
-    info.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-    info.commandBufferCount = 1;
+    VkCommandBufferAllocateInfo allocateInfo = {};
+    allocateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+    allocateInfo.pNext = nullptr;
+    allocateInfo.commandPool = mCmdPool->mVkCmdPool;
+    
+    if (type == SlvnCmdBufferType::cPrimary)
+        allocateInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+    else if (type == SlvnCmdBufferType::cSecondary)
+        allocateInfo.level = VK_COMMAND_BUFFER_LEVEL_SECONDARY;
 
-    // TODO; find out if external synchronization problem here.
-    VkResult result = vkAllocateCommandBuffers(mLogicalDeviceRef, &info, &mCmdBuffer);
+    allocateInfo.commandBufferCount = count;
+    mCmdBuffers.resize(count);
+    VkResult result = vkAllocateCommandBuffers(*device, &allocateInfo, mCmdBuffers.data());
     assert(result == VK_SUCCESS);
 
     SLVN_PRINT("EXIT");
     return SlvnResult::cOk;
 }
 
-SlvnResult SlvnCommandWorker::beginBuffer()
+SlvnResult SlvnCommandWorker::BeginBuffer(  SlvnCmdBufferType type,
+                                            VkCommandBufferInheritanceInfo* inheritanceInfo,
+                                            uint32_t cmdBufferIndex)
 {
     SLVN_PRINT("ENTER");
 
-    VkCommandBufferBeginInfo info = {};
-    info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-    info.pNext = nullptr;
-    info.flags = 0;
-    info.pInheritanceInfo = nullptr;
+    VkCommandBufferBeginInfo beginInfo = {};
+    beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+    beginInfo.pNext = nullptr;
+    if (type == SlvnCmdBufferType::cSecondary)
+        beginInfo.flags = VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT;
+    else
+        beginInfo.flags = 0;
+    beginInfo.pInheritanceInfo = inheritanceInfo;
 
-    VkResult result = vkBeginCommandBuffer(mCmdBuffer, &info);
+    assert(cmdBufferIndex <= mCmdBuffers.size());
+
+    VkResult result = vkBeginCommandBuffer(mCmdBuffers[cmdBufferIndex], & beginInfo);
     assert(result == VK_SUCCESS);
 
     SLVN_PRINT("EXIT");
     return SlvnResult::cOk;
 }
 
-SlvnResult SlvnCommandWorker::endBuffer()
+SlvnResult SlvnCommandWorker::EndBuffer(uint32_t cmdBufferIndex)
 {
     SLVN_PRINT("ENTER");
 
-    VkResult result = vkEndCommandBuffer(mCmdBuffer);
+    assert(cmdBufferIndex <= mCmdBuffers.size());
+
+    VkResult result = vkEndCommandBuffer(mCmdBuffers[cmdBufferIndex]);
     assert(result == VK_SUCCESS);
 
     SLVN_PRINT("EXIT");
     return SlvnResult::cOk;
 }
 
-SlvnResult SlvnCommandWorker::resetBuffer(VkCommandBufferResetFlags flags)
+SlvnResult SlvnCommandWorker::resetBuffer(VkCommandBufferResetFlags flags, uint32_t cmdBufferIndex)
 {
     SLVN_PRINT("ENTER");
 
     // Flags can be VK_COMMAND_BUFFER_RESET_RELEASE_RESOURCES_BIT.
     // If this bit is set, resources allocated by the buffer will be released.
 
-    VkResult result = vkResetCommandBuffer(mCmdBuffer, flags);
+    assert(cmdBufferIndex <= mCmdBuffers.size());
+
+    VkResult result = vkResetCommandBuffer(mCmdBuffers[cmdBufferIndex], flags);
     assert(result == VK_SUCCESS);
 
     SLVN_PRINT("EXIT");

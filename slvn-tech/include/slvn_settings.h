@@ -45,11 +45,20 @@ public:
     static SlvnSettings* GetInstance();
 
     SlvnWindowMode mWindowMode;
+
+    float mCameraFov;
+
+    uint16_t mWindowWidth;
+    uint16_t mWindowHeight;
     
     std::vector<std::string> mWantedLayers;
     std::vector<std::string> mWantedInstanceExtensions;
+    std::vector<std::string> mWantedDeviceExtensions;
     uint8_t mWantedLayerAmount;
     uint8_t mWantedInstanceExtensionAmount;
+    uint8_t mWantedDeviceExtensionAmount;
+
+    uint16_t mMaxThreads;
 
 private:
     SlvnSettings();

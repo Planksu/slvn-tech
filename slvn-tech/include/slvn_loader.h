@@ -24,53 +24,28 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef SLVNCOMMANDWORKER_H
-#define SLVNCOMMANDWORKER_H
+#ifndef SLVNLOADER_H
+#define SLVNLOADER_H
 
-#include <vector>
-#include <optional>
-
-#include <vulkan/vulkan.h>
+#include <OBJ_Loader.h>
 
 #include <core.h>
 #include <slvn_debug.h>
-#include <slvn_command_pool.h>
-#include <slvn_device.h>
 
 namespace slvn_tech
 {
 
-class SlvnCommandWorker
+class SlvnLoader
 {
 public:
-    SlvnCommandWorker();
-    ~SlvnCommandWorker();
+    SlvnLoader();
+    ~SlvnLoader();
 
-    SlvnResult Initialize(  VkDevice* device, 
-                            VkCommandPoolCreateFlagBits flags,
-                            uint32_t queueFamilyIndex,
-                            SlvnCmdBufferType type,
-                            uint32_t cmdBufferCount,
-                            std::optional<SlvnCommandPool*> cmdPool);
-    SlvnResult Deinitialize(VkDevice* device);
-    SlvnResult BeginBuffer(SlvnCmdBufferType type, VkCommandBufferInheritanceInfo* inheritanceInfo, uint32_t cmdBufferIndex);
-    SlvnResult EndBuffer(uint32_t cmdBufferIndex);
-
-private:
-    SlvnResult createCommandPool(VkDevice* device, VkCommandPoolCreateFlagBits flags, uint32_t queueFamilyIndex);
-    SlvnResult allocateBuffers(VkDevice* device, SlvnCmdBufferType type, uint32_t count);
-    SlvnResult resetBuffer(VkCommandBufferResetFlags flags, uint32_t cmdBufferIndex);
-
-public:
-    std::vector<VkCommandBuffer> mCmdBuffers;
-    SlvnThreadData mThreadData;
-    VkCommandBufferInheritanceInfo mInfo;
-private:
-    SlvnState mState;
-    SlvnCommandPool* mCmdPool;
+    SlvnResult Load(std::string objPath,
+                    std::vector<SlvnMesh>& meshes);
 
 };
 
-} // slvn_tech
+}
 
-#endif // SLVNCOMMANDWORKER_H
+#endif // SLVNLOADER_H

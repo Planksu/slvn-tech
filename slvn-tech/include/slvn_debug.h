@@ -27,12 +27,26 @@
 #ifndef SLVN_DEBUG_H
 #define SLVN_DEBUG_H
 
-#include <iostream>
+#define SLVN_DEBUG_ENABLE
 
-#ifndef NDEBUG
-    #define SLVN_PRINT(content) std::cerr << "SLVN_PRINT: Function: " __FUNCTION__ << ", at line: " << __LINE__ << "; " << content << std::endl;
+#include <iostream>
+#include <chrono>
+
+namespace
+{
+
+std::chrono::steady_clock::time_point startTime;
+std::chrono::steady_clock::time_point endTime;
+
+#ifdef SLVN_DEBUG_ENABLE
+#define SLVN_PRINT(content) std::cerr << "SLVN_PRINT: Function: " __FUNCTION__ << ", at line: " << __LINE__ << "; " << content << std::endl;
+#define SLVN_PERFMEASURE_START startTime = std::chrono::high_resolution_clock::now();
+#define SLVN_PERFMEASURE_END endTime = std::chrono::high_resolution_clock::now(); SLVN_PRINT("Performance measurement took: " << (std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime)).count() << "ms");
 #else
-    #define SLVN_PRINT(content) (void)0
+#define SLVN_PRINT(content) (void)0
+#define SLVN_PERFMEASURE_START (void)0
+#define SLVN_PERFMEASURE_END (void)0
 #endif
 
+}
 #endif

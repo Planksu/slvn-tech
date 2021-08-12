@@ -24,65 +24,41 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#include <thread>
-
-#include <slvn_settings.h>
+#ifndef SLVNGRAPHICSPIPELINE_H
+#define SLVNGRAPHICSPIPELINE_H
 
 #include <vulkan/vulkan.h>
-#include <GLFW/glfw3.h>
+
+#include <core.h>
+#include <slvn_debug.h>
+#include <slvn_shader_module.h>
 
 namespace slvn_tech
 {
 
-SlvnSettings* SlvnSettings::mInstance = nullptr;
-
-SlvnSettings::SlvnSettings() : mWindowMode(SlvnWindowMode::cFullscreen)
+class SlvnGraphicsPipeline
 {
-    // All variables in constructor are safe to edit
+public:
+    SlvnGraphicsPipeline();
+    ~SlvnGraphicsPipeline();
 
-    mWantedLayers.push_back(std::string("VK_LAYER_KHRONOS_validation"));
-    mWantedLayers.push_back(std::string("VK_LAYER_RENDERDOC_Capture"));
-    mWantedDeviceExtensions.push_back(std::string("VK_KHR_swapchain"));
+    SlvnResult Initialize(VkDevice& device, VkRenderPass& renderpass);
+    SlvnResult Deinitialize();
+    SlvnResult BindPipeline(VkCommandBuffer& cmdBuffer);
+    SlvnResult Draw(VkCommandBuffer& cmdBuffer);
 
-	uint32_t glfwExtensionCount = 0;
-	const char** glfwExtensions;
-	glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
+    VkPipelineLayout GetLayout() { return mPipelineLayout; }
 
-	std::vector<const char*> extensions(glfwExtensions, glfwExtensions + glfwExtensionCount);
-    extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
+private:
+    SlvnState mState;
+    VkPipeline mPipeline;
+    std::vector<SlvnShaderModule> mShaderModules;
+    VkPipelineLayout mPipelineLayout;
 
-    for (auto& extension : extensions)
-    {
-        mWantedInstanceExtensions.push_back(extension);
-    }    
-    
-    mWantedLayerAmount = mWantedLayers.size();
-    mWantedInstanceExtensionAmount = mWantedInstanceExtensions.size();
-    mWantedDeviceExtensionAmount = mWantedDeviceExtensions.size();
-
-    mCameraFov = 90.f;
-
-    mWindowHeight = 1080;
-    mWindowWidth = 1920;
-
-    mMaxThreads = std::thread::hardware_concurrency();
-}
-
-SlvnSettings::~SlvnSettings()
-{
-    if (mInstance == nullptr) return;
-
-    delete mInstance;
-}
-
-SlvnSettings* SlvnSettings::GetInstance()
-{
-    if (mInstance == nullptr)
-    {
-        mInstance = new SlvnSettings();
-    }
-
-    return mInstance;
-}
+    // This pointer is a reference to the device that was used to create this graphics pipeline for deinitialization purposes.
+    VkDevice* mDevice;
+};
 
 } // slvn_tech
+
+#endif // SLVNGRAPHICSPIPELINE_H

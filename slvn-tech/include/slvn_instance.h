@@ -34,6 +34,7 @@
 #include <abstract/slvn_abstract_instance.h>
 #include <slvn_device_manager.h>
 #include <slvn_command_manager.h>
+#include <slvn_display.h>
 #include <core.h>
 
 namespace slvn_tech
@@ -54,8 +55,6 @@ public:
 
 public:
     VkInstance mVkInstance;
-    SlvnDeviceManager mDeviceManager;
-    SlvnCommandManager mCmdManager;
 
 private:
     bool mValidationEnabled;

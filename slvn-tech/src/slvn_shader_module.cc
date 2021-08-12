@@ -24,56 +24,78 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#include <thread>
+#include <fstream>
+#include <assert.h>
 
-#include <slvn_command_manager.h>
-#include <slvn_debug.h>
+#include <vulkan/vulkan.h>
+
+#include <slvn_shader_module.h>
 
 namespace slvn_tech
 {
 
-SlvnCommandManager::SlvnCommandManager() : mState(SlvnState::cNotInitialized)
+SlvnShaderModule::SlvnShaderModule() : mDevice(VK_NULL_HANDLE), mShader(VK_NULL_HANDLE), mState(SlvnState::cNotInitialized)
 {
-    SLVN_PRINT("Constructing SlvnCommandManager object");
+
 }
 
-SlvnCommandManager::~SlvnCommandManager()
+SlvnShaderModule::~SlvnShaderModule()
 {
-    SLVN_PRINT("Destructing SlvnCommandManager object");
 
-    if (mState != SlvnState::cDeinitialized && mState != SlvnState::cNotInitialized)
-        SLVN_PRINT("\n\n ERROR; destructor called even though Deinitialize() not called! Memory handling error!");
 }
 
-SlvnResult SlvnCommandManager::Initialize(VkInstance& instance)
+SlvnResult SlvnShaderModule::loadShader(std::string& path)
 {
     SLVN_PRINT("ENTER");
+    
+    std::ifstream file(path, std::ios::ate | std::ios::binary);
 
-    mWorkers.resize(SLVN_DEFAULT_WORKER_THREADS);
-    for (auto& worker : mWorkers)
-    {
-        worker = new SlvnCommandWorker();
-    }
+    if (!file.is_open())
+        return SlvnResult::cInvalidPath;
 
-    mState = SlvnState::cInitialized;
+    std::size_t fileSize = static_cast<std::size_t>(file.tellg());
+    mShaderSource.resize(fileSize);
+
+    file.seekg(0);
+    file.read(mShaderSource.data(), fileSize);
+    file.close();
+
     SLVN_PRINT("EXIT");
     return SlvnResult::cOk;
 }
 
-
-SlvnResult SlvnCommandManager::Deinitialize()
+SlvnResult SlvnShaderModule::Initialize(VkDevice& device, std::string& path)
 {
     SLVN_PRINT("ENTER");
-    
-    for (auto& worker : mWorkers)
-    {
-        delete worker;
-    }
+
+    mDevice = &device;
+
+    SlvnResult result = loadShader(path);
+    assert(result == SlvnResult::cOk);
+
+    VkShaderModuleCreateInfo info = {};
+    info.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
+    info.pNext = nullptr;
+    info.flags = 0;
+    info.codeSize = mShaderSource.size();
+    info.pCode = reinterpret_cast<const uint32_t*>(mShaderSource.data());
+
+    VkResult res = vkCreateShaderModule(*mDevice, &info, nullptr, &mShader);
+    assert(res == VK_SUCCESS);
+
+    SLVN_PRINT("EXIT");
+    return SlvnResult::cOk;
+}
+
+SlvnResult SlvnShaderModule::Deinitialize()
+{
+    SLVN_PRINT("ENTER");
+
+    vkDestroyShaderModule(*mDevice, mShader, nullptr);
 
     mState = SlvnState::cDeinitialized;
     SLVN_PRINT("EXIT");
     return SlvnResult::cOk;
 }
 
-
-} // slvn_tech
+}

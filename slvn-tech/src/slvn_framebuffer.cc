@@ -24,56 +24,67 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#include <thread>
-
-#include <slvn_command_manager.h>
-#include <slvn_debug.h>
+#include <slvn_framebuffer.h>
 
 namespace slvn_tech
 {
 
-SlvnCommandManager::SlvnCommandManager() : mState(SlvnState::cNotInitialized)
+SlvnFramebuffer::SlvnFramebuffer() : mState(SlvnState::cNotInitialized)
 {
-    SLVN_PRINT("Constructing SlvnCommandManager object");
+
 }
 
-SlvnCommandManager::~SlvnCommandManager()
+SlvnFramebuffer::~SlvnFramebuffer()
 {
-    SLVN_PRINT("Destructing SlvnCommandManager object");
-
     if (mState != SlvnState::cDeinitialized && mState != SlvnState::cNotInitialized)
-        SLVN_PRINT("\n\n ERROR; destructor called even though Deinitialize() not called! Memory handling error!");
+        SLVN_PRINT("ERROR; object was not deinitialized before desctructor was called!");
 }
 
-SlvnResult SlvnCommandManager::Initialize(VkInstance& instance)
+SlvnResult SlvnFramebuffer::Initialize(VkDevice& device, VkRenderPass renderPass, std::vector<VkImageView>& imageViews, VkExtent2D extent)
 {
     SLVN_PRINT("ENTER");
 
-    mWorkers.resize(SLVN_DEFAULT_WORKER_THREADS);
-    for (auto& worker : mWorkers)
+    mDevice = &device;
+    mFrameBuffers.resize(imageViews.size());
+    for (int i = 0; i < imageViews.size(); i++)
     {
-        worker = new SlvnCommandWorker();
+        VkImageView attachment[] = {
+            imageViews[i] };
+
+        VkFramebufferCreateInfo info = {};
+        info.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+        info.pNext = nullptr;
+        info.flags = 0;
+        info.renderPass = renderPass;
+        info.attachmentCount = 1;
+        info.pAttachments = attachment;
+        info.width = extent.width;
+        info.height = extent.height;
+        info.layers = 1;
+
+        VkResult result = vkCreateFramebuffer(*mDevice, &info, nullptr, &mFrameBuffers[i]);
+        assert(result == VK_SUCCESS);
+
     }
+
 
     mState = SlvnState::cInitialized;
     SLVN_PRINT("EXIT");
     return SlvnResult::cOk;
 }
 
-
-SlvnResult SlvnCommandManager::Deinitialize()
+SlvnResult SlvnFramebuffer::Deinitialize()
 {
     SLVN_PRINT("ENTER");
-    
-    for (auto& worker : mWorkers)
-    {
-        delete worker;
-    }
 
+    for (auto& framebuffer : mFrameBuffers)
+    {
+        vkDestroyFramebuffer(*mDevice, framebuffer, nullptr);
+    }
+    
     mState = SlvnState::cDeinitialized;
     SLVN_PRINT("EXIT");
     return SlvnResult::cOk;
 }
-
 
 } // slvn_tech

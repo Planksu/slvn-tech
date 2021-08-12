@@ -24,47 +24,45 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef SLVNDEVICE_H
-#define SLVNDEVICE_H
-
-#include <vector>
-
-#include <vulkan/vulkan.h>
+#include <slvn_loader.h>
 #include <core.h>
 
 namespace slvn_tech
 {
 
-class SlvnDevice
+SlvnLoader::SlvnLoader()
 {
-public:
-    SlvnDevice();
-    ~SlvnDevice();
 
-    SlvnResult Deinitialize();
-    SlvnResult GetQueueFamilyProperties();
-    SlvnResult CreateLogicalDevice();
-    uint8_t GetViableQueueFamilyIndex();
-    uint16_t GetViableQueueCount();
+}
 
-private:
-    SlvnResult checkQueueFamilyProperties();
-    SlvnResult queryDeviceExtensions(char**& enabledExtensions, uint32_t& enabledExtensionCount);
+SlvnLoader::~SlvnLoader()
+{
 
-public:
-    VkPhysicalDevice mPhysicalDevice;
-    VkPhysicalDeviceProperties mPhyProperties;
-    VkDevice mLogicalDevice;
+}
 
-    std::vector<VkQueueFamilyProperties> mQueueFamilyProperties;
+SlvnResult SlvnLoader::Load(std::string objPath,
+                            std::vector<SlvnMesh>& meshes)
+{
+    SLVN_PRINT("ENTER");
 
-    bool mPrimaryDevice;
-    uint8_t mQueueFamilyIndex;
+    objl::Loader loader;
+    bool result = loader.LoadFile(objPath);
 
-private:
-    SlvnState mState;
-};
+    if (!result)
+        return SlvnResult::cInvalidPath;
 
-} // slvn_tech
+    for (auto& mesh : loader.LoadedMeshes)
+    {   
+        SlvnMesh newMesh = SlvnMesh(mesh);
 
-#endif // SLVNDEVICE_H
+        std::cout << "Mesh: " << mesh.MeshName << std::endl;
+
+
+        meshes.push_back(newMesh);
+    }
+
+    SLVN_PRINT("EXIT");
+    return SlvnResult::cOk;
+}
+
+}
