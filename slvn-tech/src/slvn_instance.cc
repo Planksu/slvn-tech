@@ -150,7 +150,7 @@ SlvnResult SlvnInstance::fillApplicationInfo(VkApplicationInfo& appInfo)
 SlvnResult SlvnInstance::enumerateLayers(char**& enabledLayers, uint32_t& enabledLayerCount)
 {
     SLVN_PRINT("ENTER");
-    SlvnSettings* settings = SlvnSettings::GetInstance();
+    SlvnSettings& settings = SlvnSettings::GetInstance();
 
 #ifdef SLVN_DEBUG_LAYER
     SLVN_PRINT("Enabling VK_LAYER_KHRONOS_validation layer");
@@ -172,20 +172,20 @@ SlvnResult SlvnInstance::enumerateLayers(char**& enabledLayers, uint32_t& enable
     {
         SLVN_PRINT(layer.layerName);
 
-        auto it = std::find(settings->mWantedLayers.begin(), settings->mWantedLayers.end(), layer.layerName);
-        if (it != settings->mWantedLayers.end())
+        auto it = std::find(settings.mWantedLayers.begin(), settings.mWantedLayers.end(), layer.layerName);
+        if (it != settings.mWantedLayers.end())
         {
             SLVN_PRINT("Wanted instance extension supported, adding to to-enable list");
             enabledLayerCount++;
-            enabledExtensionIndexes.push_back(std::distance(settings->mWantedLayers.begin(), it));
+            enabledExtensionIndexes.push_back(std::distance(settings.mWantedLayers.begin(), it));
         }
     }
 
     enabledLayers = new char*[enabledLayerCount];
     for (uint32_t i = 0; i < enabledLayerCount; i++)
     {
-        enabledLayers[i] = new char[settings->mWantedLayers[enabledExtensionIndexes[i]].size() + 1];
-        std::strcpy(enabledLayers[i], settings->mWantedLayers[enabledExtensionIndexes[i]].c_str());
+        enabledLayers[i] = new char[settings.mWantedLayers[enabledExtensionIndexes[i]].size() + 1];
+        std::strcpy(enabledLayers[i], settings.mWantedLayers[enabledExtensionIndexes[i]].c_str());
     }
     
 
@@ -197,7 +197,7 @@ SlvnResult SlvnInstance::enumerateLayers(char**& enabledLayers, uint32_t& enable
 
 SlvnResult SlvnInstance::enumerateExtensions(char**& enabledExtensions, uint32_t& enabledExtensionCount)
 {
-    SlvnSettings* settings = SlvnSettings::GetInstance();
+    SlvnSettings& settings = SlvnSettings::GetInstance();
     std::vector<VkExtensionProperties> properties;
     uint32_t extensionCount = 0;
     VkResult result = vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, nullptr);
@@ -220,20 +220,20 @@ SlvnResult SlvnInstance::enumerateExtensions(char**& enabledExtensions, uint32_t
     {
         SLVN_PRINT(extension.extensionName);
 
-        auto it = std::find(settings->mWantedInstanceExtensions.begin(), settings->mWantedInstanceExtensions.end(), extension.extensionName);
-        if (it != settings->mWantedInstanceExtensions.end())
+        auto it = std::find(settings.mWantedInstanceExtensions.begin(), settings.mWantedInstanceExtensions.end(), extension.extensionName);
+        if (it != settings.mWantedInstanceExtensions.end())
         {
             SLVN_PRINT("Wanted instance extension supported, adding to to-enable list");
             enabledExtensionCount++;
-            enabledExtensionIndexes.push_back(std::distance(settings->mWantedInstanceExtensions.begin(), it));
+            enabledExtensionIndexes.push_back(std::distance(settings.mWantedInstanceExtensions.begin(), it));
         }
     }
 
     enabledExtensions = new char*[enabledExtensionCount];
     for (uint32_t i = 0; i < enabledExtensionCount; i++)
     {
-        enabledExtensions[i] = new char[settings->mWantedInstanceExtensions[enabledExtensionIndexes[i]].size() + 1];
-        std::strcpy(enabledExtensions[i], settings->mWantedInstanceExtensions[enabledExtensionIndexes[i]].c_str());
+        enabledExtensions[i] = new char[settings.mWantedInstanceExtensions[enabledExtensionIndexes[i]].size() + 1];
+        std::strcpy(enabledExtensions[i], settings.mWantedInstanceExtensions[enabledExtensionIndexes[i]].c_str());
     }
     
     return SlvnResult::cOk;

@@ -39,10 +39,13 @@ enum class SlvnWindowMode
     cFullscreen // Default
 };
 
+// @brief
+// SlvnSettings is a Myers singleton class, containing
+// configurable values for operation.
 class SlvnSettings
 {
 public:
-    static SlvnSettings* GetInstance();
+    static SlvnSettings& GetInstance();
 
     SlvnWindowMode mWindowMode;
 

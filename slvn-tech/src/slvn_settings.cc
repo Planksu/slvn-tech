@@ -25,6 +25,7 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <thread>
+#include <iterator>
 
 #include <slvn_settings.h>
 
@@ -33,8 +34,6 @@
 
 namespace slvn_tech
 {
-
-SlvnSettings* SlvnSettings::mInstance = nullptr;
 
 SlvnSettings::SlvnSettings() : mWindowMode(SlvnWindowMode::cFullscreen)
 {
@@ -51,14 +50,11 @@ SlvnSettings::SlvnSettings() : mWindowMode(SlvnWindowMode::cFullscreen)
 	std::vector<const char*> extensions(glfwExtensions, glfwExtensions + glfwExtensionCount);
     extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
 
-    for (auto& extension : extensions)
-    {
-        mWantedInstanceExtensions.push_back(extension);
-    }    
+    std::copy(extensions.begin(), extensions.end(), std::back_inserter(mWantedInstanceExtensions));
     
-    mWantedLayerAmount = mWantedLayers.size();
-    mWantedInstanceExtensionAmount = mWantedInstanceExtensions.size();
-    mWantedDeviceExtensionAmount = mWantedDeviceExtensions.size();
+    mWantedLayerAmount = static_cast<uint32_t>(mWantedLayers.size());
+    mWantedInstanceExtensionAmount = static_cast<uint32_t>(mWantedInstanceExtensions.size());
+    mWantedDeviceExtensionAmount = static_cast<uint32_t>(mWantedDeviceExtensions.size());
 
     mCameraFov = 90.f;
 
@@ -70,19 +66,13 @@ SlvnSettings::SlvnSettings() : mWindowMode(SlvnWindowMode::cFullscreen)
 
 SlvnSettings::~SlvnSettings()
 {
-    if (mInstance == nullptr) return;
 
-    delete mInstance;
 }
 
-SlvnSettings* SlvnSettings::GetInstance()
+SlvnSettings& SlvnSettings::GetInstance()
 {
-    if (mInstance == nullptr)
-    {
-        mInstance = new SlvnSettings();
-    }
-
-    return mInstance;
+    static SlvnSettings instance;
+    return instance;
 }
 
 } // slvn_tech

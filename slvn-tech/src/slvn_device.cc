@@ -84,6 +84,19 @@ SlvnResult SlvnDevice::GetQueueFamilyProperties()
     return SlvnResult::cOk;
 }
 
+SlvnResult SlvnDevice::GetDeviceQueue(VkQueue& queue, uint16_t queueIndex)
+{
+    SLVN_PRINT("ENTER");
+
+    vkGetDeviceQueue(mLogicalDevice,
+        GetViableQueueFamilyIndex(),
+        queueIndex,
+        &queue);
+
+    SLVN_PRINT("EXIT");
+    return SlvnResult::cOk;
+}
+
 SlvnResult SlvnDevice::CreateLogicalDevice()
 {
     SLVN_PRINT("ENTER");
@@ -194,7 +207,7 @@ uint16_t SlvnDevice::GetViableQueueCount()
 SlvnResult SlvnDevice::queryDeviceExtensions(char**& enabledExtensions, uint32_t& enabledExtensionCount)
 {
     SLVN_PRINT("ENTER");
-    SlvnSettings* settings = SlvnSettings::GetInstance();
+    SlvnSettings& settings = SlvnSettings::GetInstance();
 
     uint32_t propertyCount = 0;
     std::vector<VkExtensionProperties> extensionProperties;
@@ -212,20 +225,20 @@ SlvnResult SlvnDevice::queryDeviceExtensions(char**& enabledExtensions, uint32_t
     {
         SLVN_PRINT(extension.extensionName);
 
-        auto it = std::find(settings->mWantedDeviceExtensions.begin(), settings->mWantedDeviceExtensions.end(), extension.extensionName);
-        if (it != settings->mWantedDeviceExtensions.end())
+        auto it = std::find(settings.mWantedDeviceExtensions.begin(), settings.mWantedDeviceExtensions.end(), extension.extensionName);
+        if (it != settings.mWantedDeviceExtensions.end())
         {
             SLVN_PRINT("Wanted instance extension supported, adding to to-enable list");
             enabledExtensionCount++;
-            enabledExtensionIndexes.push_back(std::distance(settings->mWantedDeviceExtensions.begin(), it));
+            enabledExtensionIndexes.push_back(std::distance(settings.mWantedDeviceExtensions.begin(), it));
         }
     }
 
     enabledExtensions = new char*[enabledExtensionCount];
     for (uint32_t i = 0; i < enabledExtensionCount; i++)
     {
-        enabledExtensions[i] = new char[settings->mWantedDeviceExtensions[enabledExtensionIndexes[i]].size() + 1];
-        std::strcpy(enabledExtensions[i], settings->mWantedDeviceExtensions[enabledExtensionIndexes[i]].c_str());
+        enabledExtensions[i] = new char[settings.mWantedDeviceExtensions[enabledExtensionIndexes[i]].size() + 1];
+        std::strcpy(enabledExtensions[i], settings.mWantedDeviceExtensions[enabledExtensionIndexes[i]].c_str());
     }
     
     SLVN_PRINT("EXIT");

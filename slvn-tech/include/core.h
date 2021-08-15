@@ -24,7 +24,7 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#pragma warning ( disable : 26495)
+#pragma warning ( disable : 26495 )
 
 #ifndef SLVNCORE_H
 #define SLVNCORE_H
@@ -39,8 +39,7 @@
 namespace slvn_tech
 {
 
-#define SLVN_ASSERT_RESULT(result) {assert(result == SlvnResult::cOk);}
-
+#define SLVN_ASSERT_RESULT(result) assert(result == SlvnResult::cOk);
 
 enum class SlvnResult
 {

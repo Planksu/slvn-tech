@@ -41,8 +41,9 @@ workspace "slvn-tech"
 
 project "slvn-tech"
 	targetname "slvn-tech"
-	kind "ConsoleApp"
+	kind "StaticLib"
 	language "C++"
+	flags { "MultiProcessorCompile" }
 	files { "./slvn-tech/include/*.h",
 			"./slvn-tech/include/*.inl",
 			"./slvn-tech/include/abstract/*.h",

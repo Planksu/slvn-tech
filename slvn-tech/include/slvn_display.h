@@ -49,8 +49,8 @@ public:
     SlvnResult ReinitializeSwapchain();
 
     std::vector<VkImageView> GetSwapchainImages();
-    VkExtent2D GetExtent() { return mExtent; }
-    VkRect2D GetRect() { return { 0, 0, mExtent.width, mExtent.height }; }
+    VkExtent2D GetExtent() const { return mExtent; }
+    VkRect2D GetRect() const { return { 0, 0, mExtent.width, mExtent.height }; }
 
 private:
 

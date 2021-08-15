@@ -35,6 +35,10 @@
 #include <functional>
 #include <memory>
 
+// Disable C4251; class <> needs to have dll-interface to be used by clients of class <>
+// Radicale: If the members are declared private, this has no possible disadvantegous effect. 
+#pragma warning ( disable : 4251 )
+
 namespace slvn_tech
 {
 
@@ -110,10 +114,10 @@ public:
     {
 
     }
-
-public:
+    
     std::vector<std::unique_ptr<SlvnThread>> mThreads;
 
+public:
     inline void SetThreadCount(uint32_t count)
     {
         mThreads.clear();
@@ -130,6 +134,10 @@ public:
             thread->Wait();
         }
     }
+
+
+private:
+  
 };
 
 } // slvn_tech

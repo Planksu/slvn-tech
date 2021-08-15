@@ -24,29 +24,39 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef SLVN_DEBUG_H
-#define SLVN_DEBUG_H
+#ifndef SLVNBUFFER_H
+#define SLVNBUFFER_H
 
-//#define SLVN_DEBUG_ENABLE
+#include <optional>
 
-#include <iostream>
-#include <chrono>
+#include <vulkan/vulkan.h>
 
-namespace
+#include <core.h>
+
+namespace slvn_tech
 {
 
-std::chrono::steady_clock::time_point startTime;
-std::chrono::steady_clock::time_point endTime;
+class SlvnBuffer
+{
+public:
+    SlvnBuffer();
+    SlvnBuffer(VkDevice* device, uint32_t bufferSize, VkBufferUsageFlags usage, VkSharingMode sharingMode);
+    ~SlvnBuffer();
 
-#ifdef SLVN_DEBUG_ENABLE
-#define SLVN_PRINT(content) std::cerr << "SLVN_PRINT: Function: " __FUNCTION__ << ", at line: " << __LINE__ << "; " << content << std::endl;
-#define SLVN_PERFMEASURE_START startTime = std::chrono::high_resolution_clock::now();
-#define SLVN_PERFMEASURE_END endTime = std::chrono::high_resolution_clock::now(); SLVN_PRINT("Performance measurement took: " << (std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime)).count() << "ms");
-#else
-#define SLVN_PRINT(content) (void)0
-#define SLVN_PERFMEASURE_START (void)0
-#define SLVN_PERFMEASURE_END (void)0
-#endif
+    SlvnResult Deinitialize(VkDevice* device);
 
-}
-#endif
+    SlvnResult Insert(VkDevice* device, VkPhysicalDevice* physDev, uint32_t size, const void* data);
+    VkBuffer GetBuffer() const { return mBuffer; }
+
+private:
+    std::optional<VkDeviceSize> getAllocationSize(VkDevice* device) const;
+    std::optional<uint32_t> getMemoryTypeIndex(VkDevice* device, VkPhysicalDevice* physDev, uint32_t wantedFlags) const;
+
+private:
+    VkBuffer mBuffer;
+    VkDeviceMemory mMemory;
+};
+
+} // slvn_tech
+
+#endif SLVNBUFFER_H

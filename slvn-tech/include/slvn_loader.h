@@ -41,8 +41,9 @@ public:
     SlvnLoader();
     ~SlvnLoader();
 
-    SlvnResult Load(std::string objPath,
-                    std::vector<SlvnMesh>& meshes);
+    SlvnResult Load(const std::string& objPath,
+                    std::vector<SlvnVertex>& vertices,
+                    std::vector<uint32_t>& indices);
 
 };
 

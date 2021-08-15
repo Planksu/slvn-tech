@@ -1,6 +1,6 @@
 // OBJ_Loader.h - A Single Header OBJ Model Loader
 
-#pragma warning( disable : 6001 4244)
+#pragma warning( disable : 6001 4244 26451)
 
 #ifndef OBJ_LOADER_H
 #define OBJ_LOADER_H

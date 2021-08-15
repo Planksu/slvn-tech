@@ -44,8 +44,8 @@ SlvnDisplay::SlvnDisplay() : mState(SlvnState::cNotInitialized), mSurface(), mVs
 
     GLFWmonitor* primary = glfwGetPrimaryMonitor();
 
-    SlvnSettings* settings = SlvnSettings::GetInstance();
-    mWindow = glfwCreateWindow(settings->mWindowWidth, settings->mWindowHeight, "slvn-tech", NULL, NULL);
+    SlvnSettings& settings = SlvnSettings::GetInstance();
+    mWindow = glfwCreateWindow(settings.mWindowWidth, settings.mWindowHeight, "slvn-tech", NULL, NULL);
 }
 
 SlvnDisplay::~SlvnDisplay()

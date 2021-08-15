@@ -40,8 +40,9 @@ SlvnLoader::~SlvnLoader()
 
 }
 
-SlvnResult SlvnLoader::Load(std::string objPath,
-                            std::vector<SlvnMesh>& meshes)
+SlvnResult SlvnLoader::Load(const std::string& objPath,
+                            std::vector<SlvnVertex>& vertices,
+                            std::vector<uint32_t>& indices)
 {
     SLVN_PRINT("ENTER");
 
@@ -53,12 +54,14 @@ SlvnResult SlvnLoader::Load(std::string objPath,
 
     for (auto& mesh : loader.LoadedMeshes)
     {   
-        SlvnMesh newMesh = SlvnMesh(mesh);
-
-        std::cout << "Mesh: " << mesh.MeshName << std::endl;
-
-
-        meshes.push_back(newMesh);
+        for (auto& vertex : mesh.Vertices)
+        {
+            vertices.push_back(vertex);
+        }
+        for (auto& indice : mesh.Indices)
+        {
+            indices.push_back(indice);
+        }
     }
 
     SLVN_PRINT("EXIT");

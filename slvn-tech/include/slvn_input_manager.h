@@ -27,11 +27,15 @@
 #ifndef SLVNINPUTMANAGER_H
 #define SLVNINPUTMANAGER_H
 
-#include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 
 #include <core.h>
 #include <slvn_camera.h>
+
+// This include breaks the customary type rules of this project
+// This is because GLFW implementation contains a macro redefinition on Windows
+// platforms, which is resolved after it is included after the offending windows headers.
+#include <GLFW/glfw3.h>
 
 namespace slvn_tech
 {

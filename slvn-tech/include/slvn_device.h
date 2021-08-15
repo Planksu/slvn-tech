@@ -46,6 +46,7 @@ public:
     SlvnResult CreateLogicalDevice();
     uint8_t GetViableQueueFamilyIndex();
     uint16_t GetViableQueueCount();
+    SlvnResult GetDeviceQueue(VkQueue& queue, uint16_t queueIndex);
 
 private:
     SlvnResult checkQueueFamilyProperties();

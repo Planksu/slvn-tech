@@ -37,7 +37,12 @@
 #include <slvn_camera.h>
 #include <slvn_threadpool.inl>
 #include <slvn_input_manager.h>
+#include <slvn_buffer.h>
 #include <core.h>
+
+// Disable C4251; class <> needs to have dll-interface to be used by clients of class <>
+// Radicale: If the members are declared private, this has no possible disadvantegous effect. 
+#pragma warning ( disable : 4251 )
 
 namespace slvn_tech
 {
@@ -60,10 +65,11 @@ private:
     SlvnResult initializeThreading();
     SlvnResult initializeSubmitInfo();
     void createCommandWorkers();
-    void renderloop();
+    void render();
     void threadRender(uint32_t threadIndex, uint32_t cmdBufferIndex, uint32_t vertexesSize, VkCommandBufferInheritanceInfo inheritanceInfo);
 
-public:
+private:
+    VkQueue mQueue;
     SlvnInstance mInstance;
     SlvnRenderpass mRenderpass;
     SlvnFramebuffer mFramebuffer;
@@ -79,24 +85,17 @@ public:
     SlvnInputManager mInputManager;
 
     uint32_t mActiveFramebuffer;
-    uint32_t mMaxThreads;
     uint32_t mObjectsPerThread;
 
     SlvnCommandWorker mPrimaryCmdWorker;
     std::vector<SlvnCommandWorker> mSecondaryCmdWorkers;
-    std::vector<SlvnThreadData> mThreadData;
-
 
     int mIdentifier;
-    VkRect2D mArea;
-    VkBuffer mVertexBuffer;
-    VkBuffer mIndiceBuffer;
+    SlvnBuffer mVertexBuffer;
+    SlvnBuffer mIndiceBuffer;
     VkSubmitInfo mSubmitInfo;
+    VkPipelineStageFlags mFlags;
     VkFence mRenderFence;
-
-private:
-    VkQueue mQueue;
-
 };
 
 } // slvn_tech
