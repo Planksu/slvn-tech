@@ -105,6 +105,7 @@ SlvnResult SlvnRenderEngine::Initialize()
     mState = SlvnState::cInitialized;
 
     createCommandWorkers();
+    prepareBuffers();
     render();
 
     return SlvnResult::cOk;
@@ -115,7 +116,7 @@ SlvnResult SlvnRenderEngine::initializeThreading()
     SLVN_PRINT("ENTER");
 
     SlvnSettings& settings = SlvnSettings::GetInstance();
-    mObjectsPerThread = 512 / settings.mMaxThreads;
+    mObjectsPerThread = settings.mMaxThreads / settings.mMaxThreads;
     mThreadpool.SetThreadCount(settings.mMaxThreads);
     mSecondaryCmdWorkers.resize(settings.mMaxThreads);
 
@@ -265,22 +266,22 @@ void SlvnRenderEngine::threadRender(uint32_t threadIndex, uint32_t cmdBufferInde
     {
         object->rotation.y -= 360.0f;
     }
-    object->deltaT += 0.15f * mInputManager.CalculateDelta();;
+    object->deltaT += 0.15f * mInputManager.CalculateDelta();
     if (object->deltaT > 1.0f)
         object->deltaT -= 1.0f;
 
     std::random_device rd;
     std::mt19937 mt(rd());
-    std::uniform_real_distribution<double> dist(-250.0, 250.0);
+    std::uniform_int_distribution<int> dist(-2, 2);
 
-    object->pos.y += sin(glm::radians(object->deltaT * 360.0f)) * static_cast<float>(dist(mt));
-    object->pos.x += sin(glm::radians(object->deltaT * 360.0f)) * static_cast<float>(dist(mt));
-    object->pos.z += sin(glm::radians(object->deltaT * 360.0f)) * static_cast<float>(dist(mt));
+    object->pos.y += dist(mt);
+    object->pos.x += dist(mt);
+    object->pos.z += dist(mt);
 
     object->model = glm::translate(glm::mat4(1.0f), object->pos);
-    object->model = glm::rotate(object->model, -sinf(glm::radians(object->deltaT * 360.0f)) * 0.25f, glm::vec3(object->rotDir, 0.0f, 0.0f));
-    object->model = glm::rotate(object->model, glm::radians(object->rotation.y), glm::vec3(0.0f, object->rotDir, 0.0f));
-    object->model = glm::rotate(object->model, glm::radians(object->deltaT * 360.0f), glm::vec3(0.0f, object->rotDir, 0.0f));
+    //object->model = glm::rotate(object->model, -sinf(glm::radians(object->deltaT * 360.0f)) * 0.25f, glm::vec3(object->rotDir, 0.0f, 0.0f));
+    //object->model = glm::rotate(object->model, glm::radians(object->rotation.y), glm::vec3(0.0f, object->rotDir, 0.0f));
+    //object->model = glm::rotate(object->model, glm::radians(object->deltaT * 360.0f), glm::vec3(0.0f, object->rotDir, 0.0f));
     object->model = glm::scale(object->model, glm::vec3(object->scale));
 
     thread->mPushConstants[cmdBufferIndex].mvp = mMatrices.projection * mMatrices.view * object->model;
@@ -291,7 +292,6 @@ void SlvnRenderEngine::threadRender(uint32_t threadIndex, uint32_t cmdBufferInde
         0,
         sizeof(SlvnThreadPushConstant),
         &thread->mPushConstants[cmdBufferIndex]);
-
 
     VkBuffer vertexBuffers[] = { mVertexBuffer.GetBuffer() };
     VkDeviceSize offsets[] = { 0 };
@@ -304,59 +304,26 @@ void SlvnRenderEngine::threadRender(uint32_t threadIndex, uint32_t cmdBufferInde
     assert(res == VK_SUCCESS);
 }
 
-void SlvnRenderEngine::render()
+SlvnResult SlvnRenderEngine::loadObjects(std::vector<SlvnVertex>& vertices, std::vector<uint32_t>& indices)
 {
-    mDeviceManager.GetPrimaryDevice()->GetDeviceQueue(mQueue, 0);
-
     SlvnLoader loader;
+    return loader.Load("slvn-tech/resources/monkey_high.obj", vertices, indices);
+}
+
+SlvnResult SlvnRenderEngine::prepareBuffers()
+{
     std::vector<SlvnVertex> vertices;
     std::vector<uint32_t> indices;
 
-    SlvnResult result = loader.Load("slvn-tech/resources/cube.obj", vertices, indices);
+    SlvnResult result = loadObjects(vertices, indices);
+    SLVN_ASSERT_RESULT(result);
+
+    mVerticesAmount = static_cast<uint32_t>(vertices.size());
 
     uint32_t verticesSize = sizeof(SlvnVertex) * static_cast<uint32_t>(vertices.size());
     uint32_t indicesSize = sizeof(uint32_t) * static_cast<uint32_t>(indices.size());
     mVertexBuffer = SlvnBuffer(&mDeviceManager.GetPrimaryDevice()->mLogicalDevice, verticesSize, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE);
     mIndiceBuffer = SlvnBuffer(&mDeviceManager.GetPrimaryDevice()->mLogicalDevice, indicesSize, VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE);
-    //VkBufferCreateInfo bufferInfo = {};
-    //bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
-    //bufferInfo.pNext = nullptr;
-    //bufferInfo.size = sizeof(SlvnVertex) * static_cast<uint32_t>(vertices.size());
-    //bufferInfo.usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
-    //bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
-
-    //VkResult res = vkCreateBuffer(mDeviceManager.GetPrimaryDevice()->mLogicalDevice, &bufferInfo, nullptr, &mVertexBuffer);
-    //assert(res == VK_SUCCESS);
-
-    //bufferInfo.size = sizeof(uint32_t) * static_cast<uint32_t>(indices.size());
-    //bufferInfo.usage = VK_BUFFER_USAGE_INDEX_BUFFER_BIT;
-
-    //res = vkCreateBuffer(mDeviceManager.GetPrimaryDevice()->mLogicalDevice, &bufferInfo, nullptr, &mIndiceBuffer);
-    //assert(res == VK_SUCCESS);
-
-    //VkMemoryRequirements vertexMemReqs;
-    //vkGetBufferMemoryRequirements(mDeviceManager.GetPrimaryDevice()->mLogicalDevice, mVertexBuffer, &vertexMemReqs);
-    //VkMemoryRequirements indiceMemReqs;
-    //vkGetBufferMemoryRequirements(mDeviceManager.GetPrimaryDevice()->mLogicalDevice, mIndiceBuffer, &indiceMemReqs);
-
-
-    //VkPhysicalDeviceMemoryProperties vertexMemProperties;
-    //vkGetPhysicalDeviceMemoryProperties(mDeviceManager.GetPrimaryDevice()->mPhysicalDevice, &vertexMemProperties);
-    //VkPhysicalDeviceMemoryProperties indiceMemProperties;
-    //vkGetPhysicalDeviceMemoryProperties(mDeviceManager.GetPrimaryDevice()->mPhysicalDevice, &indiceMemProperties);
-
-
-    //uint32_t typeFilter = vertexMemReqs.memoryTypeBits & indiceMemReqs.memoryTypeBits;
-    //uint32_t validIndex = 0;
-
-    //for (uint32_t i = 0; i < vertexMemProperties.memoryTypeCount; i++)
-    //{
-    //    if ((typeFilter & (1 << i)) && ((vertexMemProperties.memoryTypes[i].propertyFlags & memFlags) & indiceMemProperties.memoryTypes[i].propertyFlags) == memFlags)
-    //    {
-    //        validIndex = i;
-    //        break;
-    //    }
-    //}
 
     uint32_t vertexBufferSize = sizeof(SlvnVertex) * static_cast<uint32_t>(vertices.size());
     mVertexBuffer.Insert(&mDeviceManager.GetPrimaryDevice()->mLogicalDevice, &mDeviceManager.GetPrimaryDevice()->mPhysicalDevice, vertexBufferSize, vertices.data());
@@ -364,38 +331,14 @@ void SlvnRenderEngine::render()
     uint32_t indiceBufferSize = sizeof(uint32_t) * static_cast<uint32_t>(indices.size());
     mIndiceBuffer.Insert(&mDeviceManager.GetPrimaryDevice()->mLogicalDevice, &mDeviceManager.GetPrimaryDevice()->mPhysicalDevice, indiceBufferSize, indices.data());
 
-    /* VkMemoryAllocateInfo vertexMemAllocInfo = {};
-     vertexMemAllocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
-     vertexMemAllocInfo.pNext = nullptr;
-     vertexMemAllocInfo.allocationSize = *vertexBufferSize;
-     vertexMemAllocInfo.memoryTypeIndex = *vertexBufferMemoryIndex;
+    return SlvnResult::cOk;
+}
 
-     VkMemoryAllocateInfo indiceMemAllocInfo = {};
-     indiceMemAllocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
-     indiceMemAllocInfo.pNext = nullptr;
-     indiceMemAllocInfo.allocationSize = *indiceBufferSize;
-     indiceMemAllocInfo.memoryTypeIndex = *indiceBufferMemoryIndex;
+void SlvnRenderEngine::render()
+{
+    mDeviceManager.GetPrimaryDevice()->GetDeviceQueue(mQueue, 0);
 
-     VkDeviceMemory vertexBufMemory;
-     VkDeviceMemory indiceBufMemory;
-     res = vkAllocateMemory(mDeviceManager.GetPrimaryDevice()->mLogicalDevice, &vertexMemAllocInfo, nullptr, &vertexBufMemory);
-     assert(res == VK_SUCCESS);
-     res = vkAllocateMemory(mDeviceManager.GetPrimaryDevice()->mLogicalDevice, &indiceMemAllocInfo, nullptr, &indiceBufMemory);
-     assert(res == VK_SUCCESS);
-
-     vkBindBufferMemory(mDeviceManager.GetPrimaryDevice()->mLogicalDevice, mVertexBuffer, vertexBufMemory, 0);
-     vkBindBufferMemory(mDeviceManager.GetPrimaryDevice()->mLogicalDevice, mIndiceBuffer, indiceBufMemory, 0);
-
-     void* vertexData;
-     void* indiceData;
-     vkMapMemory(mDeviceManager.GetPrimaryDevice()->mLogicalDevice, vertexBufMemory, 0, sizeof(SlvnVertex) * static_cast<uint32_t>(vertices.size()), 0, &vertexData);
-     vkMapMemory(mDeviceManager.GetPrimaryDevice()->mLogicalDevice, indiceBufMemory, 0, sizeof(uint32_t) * static_cast<uint32_t>(indices.size()), 0, &indiceData);
-
-     std::memcpy(vertexData, vertices.data(), sizeof(SlvnVertex) * vertices.size());
-     std::memcpy(indiceData, indices.data(), indices.size() * sizeof(uint32_t));
-     vkUnmapMemory(mDeviceManager.GetPrimaryDevice()->mLogicalDevice, vertexBufMemory);
-     vkUnmapMemory(mDeviceManager.GetPrimaryDevice()->mLogicalDevice, indiceBufMemory);*/
-
+    
     uint32_t currentFrame = 0;
 
     while (!glfwWindowShouldClose(mDisplay.mWindow))
@@ -432,7 +375,7 @@ void SlvnRenderEngine::render()
 
         // Primary cmd buffer begin
         //res = vkBeginCommandBuffer(mPrimaryCmdBuffer, &beginInfo);
-        result = mPrimaryCmdWorker.BeginBuffer(SlvnCmdBufferType::cPrimary, nullptr, 0);
+        SlvnResult result = mPrimaryCmdWorker.BeginBuffer(SlvnCmdBufferType::cPrimary, nullptr, 0);
         SLVN_ASSERT_RESULT(result);
 
         // Begin render pass        
@@ -456,7 +399,7 @@ void SlvnRenderEngine::render()
             {
                 mThreadpool.mThreads[t]->addJob([=]
                     {
-                        threadRender(t, i, static_cast<uint32_t>(vertices.size()), inheritanceInfo);
+                        threadRender(t, i, mVerticesAmount, inheritanceInfo);
                     });
             }
         }
@@ -514,11 +457,17 @@ SlvnResult SlvnRenderEngine::Deinitialize()
     // Call Deinitialize() in reverse order to get bottom-to-top destruction order
     SLVN_PRINT("ENTER");
 
+    vkDestroySemaphore(mDeviceManager.GetPrimaryDevice()->mLogicalDevice, mSemaphores.mPresentDone, nullptr);
+    vkDestroySemaphore(mDeviceManager.GetPrimaryDevice()->mLogicalDevice, mSemaphores.mRenderDone, nullptr);
+
     SlvnResult result = mPipeline.Deinitialize();
     SLVN_ASSERT_RESULT(result);
     result = mFramebuffer.Deinitialize();
     SLVN_ASSERT_RESULT(result);
     result = mRenderpass.Deinitialize();
+    SLVN_ASSERT_RESULT(result);
+
+    result = mPrimaryCmdWorker.Deinitialize(&mDeviceManager.GetPrimaryDevice()->mLogicalDevice);
     SLVN_ASSERT_RESULT(result);
 
     for (auto& worker : mSecondaryCmdWorkers)

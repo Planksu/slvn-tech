@@ -39,6 +39,7 @@ SlvnBuffer::SlvnBuffer(VkDevice* device, uint32_t bufferSize, VkBufferUsageFlags
     info.sharingMode = sharingMode;
 
     VkResult result = vkCreateBuffer(*device, &info, nullptr, &mBuffer);
+    assert(result == VK_SUCCESS);
 }
 
 SlvnBuffer::SlvnBuffer()
@@ -86,6 +87,8 @@ std::optional<uint32_t> SlvnBuffer::getMemoryTypeIndex(VkDevice* device, VkPhysi
 SlvnResult SlvnBuffer::Insert(VkDevice* device, VkPhysicalDevice* physDev, uint32_t size, const void* data)
 {
     uint32_t memFlags = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
+
+    mBufferByteSize = size;
 
     std::optional<VkDeviceSize> bufferSize = getAllocationSize(device);
     assert(bufferSize);

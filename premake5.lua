@@ -41,7 +41,7 @@ workspace "slvn-tech"
 
 project "slvn-tech"
 	targetname "slvn-tech"
-	kind "StaticLib"
+	kind "ConsoleApp"
 	language "C++"
 	flags { "MultiProcessorCompile" }
 	files { "./slvn-tech/include/*.h",
@@ -85,6 +85,7 @@ project "slvn-tech-unittest"
 	targetname "slvn-tech-unittest"
 	kind "ConsoleApp"
 	language "C++"
+	flags { "MultiProcessorCompile" }
 	files { "./slvn-tech/src/test/*.cpp",
 			"./slvn-tech/include/test/*.h"}
 
@@ -119,7 +120,8 @@ project "slvn-tech-unittest"
 					"$(VULKAN_SDK)/lib",
 					"./slvn-tech/VULKAN_SDK/lib", 
 					"./VULKAN_SDK/lib", 
-					"./builds/Debug/x64", 
+					"./builds/Debug/x64",
+					"./builds/Release/x64",
 					"./src/Debug",
 					"./googletest/lib/Debug",
 					"../slvn-tech-local-dependencies/glfw/precompiled"}

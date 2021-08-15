@@ -47,6 +47,7 @@ public:
 
     SlvnResult Insert(VkDevice* device, VkPhysicalDevice* physDev, uint32_t size, const void* data);
     VkBuffer GetBuffer() const { return mBuffer; }
+    uint32_t GetBufferSize() const { return mBufferByteSize; }
 
 private:
     std::optional<VkDeviceSize> getAllocationSize(VkDevice* device) const;
@@ -55,6 +56,7 @@ private:
 private:
     VkBuffer mBuffer;
     VkDeviceMemory mMemory;
+    uint32_t mBufferByteSize;
 };
 
 } // slvn_tech

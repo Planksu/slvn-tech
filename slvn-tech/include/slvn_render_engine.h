@@ -40,9 +40,6 @@
 #include <slvn_buffer.h>
 #include <core.h>
 
-// Disable C4251; class <> needs to have dll-interface to be used by clients of class <>
-// Radicale: If the members are declared private, this has no possible disadvantegous effect. 
-#pragma warning ( disable : 4251 )
 
 namespace slvn_tech
 {
@@ -64,6 +61,8 @@ private:
     SlvnResult initializeSemaphores();
     SlvnResult initializeThreading();
     SlvnResult initializeSubmitInfo();
+    SlvnResult loadObjects(std::vector<SlvnVertex>& vertices, std::vector<uint32_t>& indices);
+    SlvnResult prepareBuffers();
     void createCommandWorkers();
     void render();
     void threadRender(uint32_t threadIndex, uint32_t cmdBufferIndex, uint32_t vertexesSize, VkCommandBufferInheritanceInfo inheritanceInfo);
@@ -91,6 +90,7 @@ private:
     std::vector<SlvnCommandWorker> mSecondaryCmdWorkers;
 
     int mIdentifier;
+    uint32_t mVerticesAmount;
     SlvnBuffer mVertexBuffer;
     SlvnBuffer mIndiceBuffer;
     VkSubmitInfo mSubmitInfo;
